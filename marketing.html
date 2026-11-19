@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCenter - Diagnóstico de Marketing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#174078',
+                        secondary: '#FFFFFF',
+                        tertiary: '#6EC1DA',
+                        scroll: '#1B3859',
+                        v4red: '#E50914'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #1B3859; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #174078; }
+
+        /* Glassmorphism Header */
+        .glass-header {
+            background: transparent;
+            transition: all 0.3s ease-in-out;
+        }
+        .glass-header.scrolled {
+            background: rgba(23, 64, 120, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Shine Effect for Buttons */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        /* Text Gradient */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #174078, #6EC1DA);
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Hero Slow Zoom */
+        .hero-bg {
+            background-image: linear-gradient(rgba(23, 64, 120, 0.8), rgba(23, 64, 120, 0.9)), url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            animation: slowZoom 20s infinite alternate linear;
+        }
+        @keyframes slowZoom {
+            0% { background-size: 100% auto; }
+            100% { background-size: 110% auto; }
+        }
+
+        /* Dynamic Blobs */
+        .blob {
+            position: absolute;
+            filter: blur(60px);
+            z-index: 0;
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -30px) scale(1.1); }
+        }
+
+        /* Table Hover Effects */
+        tbody tr { transition: all 0.2s; }
+        tbody tr:hover { background-color: #f8fafc; transform: scale(1.005); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+        /* Accordion Transitions */
+        .accordion-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease-out;
+        }
+        .accordion-content.open {
+            grid-template-rows: 1fr;
+        }
+        .accordion-inner {
+            overflow: hidden;
+        }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .open .accordion-icon { transform: rotate(180deg); }
+
+        /* Lightbox */
+        #lightbox {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+        .clickable-img {
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .clickable-img:hover {
+            transform: scale(1.02) translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        /* Line Clamp */
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Tooltip */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted #174078;
+        }
+        .tooltip-trigger .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #174078;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            width: max-content;
+            max-width: 200px;
+            text-align: center;
+            z-index: 50;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tooltip-trigger:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Progress Bar */
+        #progress-bar {
+            transform-origin: left;
+            transition: transform 0.1s linear;
+        }
+
+        /* Tabs System */
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            opacity: 0.6;
+        }
+        .tab-btn.active {
+            border-color: #6EC1DA;
+            color: #174078;
+            opacity: 1;
+            background-color: rgba(110, 193, 218, 0.1);
+        }
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Flashcards for Lists */
+        .flashcard {
+            transition: all 0.3s ease;
+        }
+        .flashcard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(23, 64, 120, 0.15);
+            border-color: #6EC1DA;
+        }
+        
+        /* Simulator Styles */
+        .sim-step {
+            transition: all 0.3s ease;
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .sim-step.active {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .sim-line {
+            height: 4px;
+            background: #e5e7eb;
+            flex-grow: 1;
+            transition: background 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .sim-line::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: #6EC1DA;
+            transition: left 0.5s ease;
+        }
+        .sim-line.active::after { left: 0; }
+        .sim-content-box {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .sim-content-box.active { display: block; }
+
+        /* Layout utilities */
+        .section-padding { padding: 5rem 1.5rem; }
+        .container-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased selection:bg-tertiary selection:text-primary">
+
+    <!-- Header -->
+    <header id="header" class="fixed w-full top-0 z-50 glass-header px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center relative">
+            <div class="w-24 md:w-32 hidden md:block"></div> <!-- Spacer for centering -->
+            <img src="https://medcenterclinica.com/wp-content/uploads/2024/12/logo_medcenter_white.png" alt="MedCenter Logo" class="h-10 md:h-12 hover:scale-105 transition-transform duration-300 mx-auto">
+            <img src="https://i.imgur.com/jmzaox0.png" alt="V4 Logo" class="h-6 md:h-8 hover:scale-105 transition-transform duration-300 absolute right-0 top-1/2 transform -translate-y-1/2 brightness-0 invert">
+        </div>
+        <!-- Progress Bar -->
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-white/20">
+            <div id="progress-bar" class="h-full bg-tertiary w-full" style="transform: scaleX(0);"></div>
+        </div>
+    </header>
+
+    <!-- Sessão 01: Capa -->
+    <section id="sessao-01" class="relative h-screen flex items-center justify-center overflow-hidden hero-bg">
+        <div class="container-inner text-center text-white px-4">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-12 tracking-tight reveal">
+                Diagnóstico de <span class="text-tertiary">Marketing</span>
+            </h1>
+            <a href="#sessao-02" class="inline-block bg-tertiary text-primary font-bold py-4 px-10 rounded-full text-lg shadow-lg hover:shadow-2xl transition-all duration-300 btn-shine reveal" style="transition-delay: 400ms; hover:transform: translateY(-4px);">
+                Iniciar Apresentação
+            </a>
+        </div>
+    </section>
+
+    <!-- Sessão 02: Sumário -->
+    <section id="sessao-02" class="section-padding bg-white relative overflow-hidden">
+        <div class="blob bg-tertiary w-96 h-96 rounded-full -top-20 -left-20"></div>
+        <div class="container-inner">
+            <div class="mb-12 text-center reveal">
+                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">SUMÁRIO · Duração Estimada: 1h</h2>
+                <div class="w-24 h-1 bg-tertiary mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 reveal">
+                <!-- Cards -->
+                <div class="bg-white p-6 rounded-xl shadow border-l-4 border-tertiary hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-bold text-lg text-primary">Visão geral: rastreamento de vendas e integração.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Diagnóstico de mídia paga.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Análise estrutural: busca em IA generativa e Google (CIM).</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Diagnóstico orgânico (redes sociais).</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Diagnóstico de criativos.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Diagnóstico de maturidade digital.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm border border-gray-100 hover:-translate-y-2 hover:shadow-md transition-all duration-300 flex items-start gap-4">
+                    <div class="text-tertiary text-2xl flex-shrink-0">✓</div>
+                    <p class="font-medium text-lg text-primary">Diagnóstico de CRO (site/LP).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nova Sessão: Rastreamento e Integração -->
+    <section id="sessao-rastreamento" class="section-padding bg-white border-b border-gray-200">
+        <div class="container-inner">
+            <h2 class="text-4xl font-extrabold text-gradient mb-8 reveal">Rastreamento de vendas do WhatsApp e integração (Omni Smart & STG)</h2>
+            
+            <!-- O Objetivo -->
+            <div class="bg-gray-900 text-white p-6 md:p-8 rounded-2xl shadow-xl border-l-4 border-tertiary mb-12 reveal flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-8 h-8 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-tertiary font-bold mb-2 uppercase tracking-wider text-sm">O objetivo</h3>
+                    <p class="font-light text-lg">
+                        Saber, para cada paciente que chega pelo WhatsApp, qual campanha o trouxe, se ele agendou, compareceu e fechou a venda, e quanto custou. Hoje o WhatsApp é a principal porta de entrada, mas a conversa se perde antes da venda, que acontece presencialmente, no balcão, com um RP do STG. Sem essa ligação, o investimento de cerca de R$ 10 mil por mês é ajustado sem dados de paciente.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Simulador Dinâmico -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <svg class="w-8 h-8 text-tertiary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Simulador: Como o rastreamento vai funcionar
+                </h3>
+                
+                <div class="bg-gray-50 p-6 md:p-10 rounded-2xl border border-gray-200 shadow-inner">
+                    <!-- Stepper Header -->
+                    <div class="flex items-center justify-between mb-8 relative z-10 max-w-4xl mx-auto">
+                        <!-- Step 1 -->
+                        <div class="sim-step active flex flex-col items-center cursor-pointer group" onclick="activateSimStep(1)">
+                            <div class="w-14 h-14 bg-white rounded-full border-4 border-tertiary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-primary mt-2 text-center">1. Clique & Contato</span>
+                        </div>
+                        <div class="sim-line" id="sim-line-1"></div>
+                        
+                        <!-- Step 2 -->
+                        <div class="sim-step flex flex-col items-center cursor-pointer group" id="sim-icon-2" onclick="activateSimStep(2)">
+                            <div class="w-14 h-14 bg-white rounded-full border-4 border-tertiary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            </div>
+                            <span class="text-xs font-bold text-primary mt-2 text-center">2. Omni Smart</span>
+                        </div>
+                        <div class="sim-line" id="sim-line-2"></div>
+
+                        <!-- Step 3 -->
+                        <div class="sim-step flex flex-col items-center cursor-pointer group" id="sim-icon-3" onclick="activateSimStep(3)">
+                            <div class="w-14 h-14 bg-white rounded-full border-4 border-tertiary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                            </div>
+                            <span class="text-xs font-bold text-primary mt-2 text-center">3. Venda STG</span>
+                        </div>
+                        <div class="sim-line" id="sim-line-3"></div>
+
+                        <!-- Step 4 -->
+                        <div class="sim-step flex flex-col items-center cursor-pointer group" id="sim-icon-4" onclick="activateSimStep(4)">
+                            <div class="w-14 h-14 bg-white rounded-full border-4 border-tertiary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                            </div>
+                            <span class="text-xs font-bold text-primary mt-2 text-center">4. Painel ROI</span>
+                        </div>
+                    </div>
+
+                    <!-- Step Contents -->
+                    <div class="bg-white p-6 md:p-8 rounded-xl shadow text-gray-700 min-h-[220px]">
+                        <!-- Content 1 -->
+                        <div id="sim-content-1" class="sim-content-box active">
+                            <h4 class="text-xl font-bold text-primary mb-4 border-b pb-2">1. Captação e Entrada</h4>
+                            <ul class="space-y-3">
+                                <li><strong class="text-tertiary">1. Clique no anúncio.</strong> Cada clique passa a carregar uma identificação: no Meta, o identificador do clique no WhatsApp (ctwa_clid); no Google, o gclid; e em todos, os parâmetros UTM (campanha, exame, criativo).</li>
+                                <li><strong class="text-tertiary">2. Primeiro contato.</strong> A landing ou o botão de WhatsApp gera um código de lead (lead_id) e o envia junto com a primeira mensagem. Quando o paciente chega pelo WhatsApp, esse código fica vinculado à conversa.</li>
+                            </ul>
+                        </div>
+                        <!-- Content 2 -->
+                        <div id="sim-content-2" class="sim-content-box">
+                            <h4 class="text-xl font-bold text-primary mb-4 border-b pb-2">2. Plataforma de Atendimento</h4>
+                            <ul class="space-y-3">
+                                <li><strong class="text-tertiary">3. Omni Smart.</strong> A plataforma grava a origem no contato do paciente: campanha, anúncio, UTMs e identificadores de clique. Esse dado é o que faltava: hoje o Omni já mostra se a conversa veio de anúncio, mas não registra a origem de forma utilizável.</li>
+                                <li><strong class="text-tertiary">4. Atendimento e transferências.</strong> Quando o paciente é transferido entre unidades, a conversa continua na mesma plataforma e a origem se mantém.</li>
+                            </ul>
+                        </div>
+                        <!-- Content 3 -->
+                        <div id="sim-content-3" class="sim-content-box">
+                            <h4 class="text-xl font-bold text-primary mb-4 border-b pb-2">3. Presencial e Conversão</h4>
+                            <ul class="space-y-3">
+                                <li><strong class="text-tertiary">5. Agendamento, comparecimento e venda no STG.</strong> Na hora do agendamento ou do orçamento, o atendente registra o CPF e o lead_id no STG. O RP registra o comparecimento e a venda, também com CPF. O CPF é a chave que une as etapas.</li>
+                            </ul>
+                        </div>
+                        <!-- Content 4 -->
+                        <div id="sim-content-4" class="sim-content-box">
+                            <h4 class="text-xl font-bold text-primary mb-4 border-b pb-2">4. Inteligência e Retorno</h4>
+                            <ul class="space-y-3">
+                                <li><strong class="text-tertiary">6. Conciliação.</strong> Um processo automático (com Pipefy, n8n ou equivalente) cruza os dados do STG com os contatos do Omni, pelo lead_id ou pelo telefone, e identifica a origem de cada venda.</li>
+                                <li><strong class="text-tertiary">7. Devolução às plataformas.</strong> Os eventos “agendou” e “realizou exame”, com valor, voltam para Meta e Google. Nesse envio, usamos telefone e e-mail com hash, e não o CPF, que não é aceito pelas plataformas e é dado sensível.</li>
+                                <li><strong class="text-tertiary">8. Painel.</strong> Custo por agendamento e custo por venda, por campanha, exame e unidade.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Papel de cada sistema & Integração -->
+            <div class="grid lg:grid-cols-2 gap-8 mb-12 reveal">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">O papel de cada sistema</h4>
+                    <div class="space-y-3">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+                            <div class="bg-blue-100 text-blue-600 font-bold px-3 py-1 rounded text-sm w-28 text-center flex-shrink-0">Meta/Google</div>
+                            <p class="text-sm text-gray-700">Geram o clique e recebem de volta as conversões de agendamento e venda.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+                            <div class="bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded text-sm w-28 text-center flex-shrink-0">Site / GTM</div>
+                            <p class="text-sm text-gray-700">Registra cliques nos WhatsApps e no 0800. <span class="text-red-500 font-medium">Hoje não está instalado.</span></p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+                            <div class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded text-sm w-28 text-center flex-shrink-0">Omni Smart</div>
+                            <p class="text-sm text-gray-700">Conversa, distribuição entre atendentes e origem do paciente.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+                            <div class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded text-sm w-28 text-center flex-shrink-0">STG</div>
+                            <p class="text-sm text-gray-700">Fonte da verdade para agendamento, orçamento e venda, com CPF.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+                            <div class="bg-tertiary/20 text-primary font-bold px-3 py-1 rounded text-sm w-28 text-center flex-shrink-0">Conciliação</div>
+                            <p class="text-sm text-gray-700">Liga as três fontes e devolve os eventos às plataformas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">Integração com Omni e STG</h4>
+                    <p class="text-gray-700 text-sm mb-4">
+                        Na reunião de 22/10, a clínica informou que a integração direta entre Omni Smart e STG foi considerada cara. Por isso, a proposta inicial não exige integração completa. Ela usa três caminhos mais simples:
+                    </p>
+                    <div class="space-y-4">
+                        <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                            <h5 class="font-bold text-gray-800 text-sm mb-1">Fase 1 (Atual)</h5>
+                            <p class="text-sm text-gray-700">Registro manual padronizado de agendamento e venda no STG (com CPF e lead_id), com relatórios exportados e conciliados por processo automático.</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-tertiary">
+                            <h5 class="font-bold text-gray-800 text-sm mb-1">Fase 2 (Expansão)</h5>
+                            <p class="text-sm text-gray-700">Se a medição mostrar que o ganho compensa, avaliar a integração por API entre Omni e STG.</p>
+                        </div>
+                        <p class="text-xs text-gray-500 italic bg-gray-100 p-3 rounded">
+                            <strong>Um ponto a validar:</strong> o Omni Smart tem API aberta, e o módulo de marketing do STG (disparos por WhatsApp) já existe, mas não é usado. Essas duas opções precisam ser avaliadas com os fornecedores antes da decisão.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pontos de Atenção -->
+            <div class="reveal">
+                <h4 class="text-xl font-bold text-v4red mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Pontos de atenção críticos
+                </h4>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="flashcard bg-white p-5 rounded-xl border border-red-200 shadow-sm border-t-4 border-t-red-500">
+                        <h5 class="font-bold text-gray-800 mb-2 text-sm">Taxa de correspondência</h5>
+                        <p class="text-xs text-gray-600">Sem CPF no atendimento inicial, a ligação depende do lead_id e do telefone. Antes de automatizar, mediremos quantas vendas dos últimos 12 meses conseguem ser casadas.</p>
+                    </div>
+                    <div class="flashcard bg-white p-5 rounded-xl border border-red-200 shadow-sm border-t-4 border-t-red-500">
+                        <h5 class="font-bold text-gray-800 mb-2 text-sm">Prazo de atribuição</h5>
+                        <p class="text-xs text-gray-600">O clique do Google perde validade para conversão offline em 90 dias. A janela de atribuição precisa cobrir o tempo entre o clique e o exame, que pode passar de 30 dias.</p>
+                    </div>
+                    <div class="flashcard bg-white p-5 rounded-xl border border-red-200 shadow-sm border-t-4 border-t-red-500">
+                        <h5 class="font-bold text-gray-800 mb-2 text-sm">LGPD (Sensível)</h5>
+                        <p class="text-xs text-gray-600">Dados de saúde são sensíveis. A clínica precisa de base legal e validação jurídica antes de usar a base para comunicação.</p>
+                    </div>
+                    <div class="flashcard bg-white p-5 rounded-xl border border-red-200 shadow-sm border-t-4 border-t-red-500">
+                        <h5 class="font-bold text-gray-800 mb-2 text-sm">Disciplina operacional</h5>
+                        <p class="text-xs text-gray-600">O maior risco não é técnico: é o registro do agendamento e venda no STG. Se o atendente não preencher o lead_id, a cadeia quebra.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 03 (Agora 04): Diagnóstico de mídia paga -->
+    <section class="section-padding bg-gray-50">
+        <div class="container-inner">
+            <h2 class="text-4xl font-extrabold text-gradient mb-12 reveal">Diagnóstico de mídia paga</h2>
+            
+            <!-- 1. O que já funciona -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
+                    O que já funciona na MedCenter
+                </h3>
+                <p class="text-lg text-gray-700 mb-6">
+                    Os dois anúncios mais baratos da conta são vídeos. Juntos, geraram 261 conversas, a R$ 2,97 e R$ 3,63 por conversa, quando a média da conta é R$ 5,83. 
+                </p>
+
+                <!-- Visual KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col justify-center items-center">
+                        <span class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Conversas geradas</span>
+                        <span class="text-4xl font-black text-primary">261</span>
+                        <span class="text-xs text-gray-400 mt-2">Pelos 2 vídeos campeões</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col justify-center items-center border-b-4 border-green-500">
+                        <span class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Custo Ressonância</span>
+                        <span class="text-4xl font-black text-green-600">R$ 2,97</span>
+                        <span class="text-xs text-gray-400 mt-2">Por conversa (abaixo da média)</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col justify-center items-center border-b-4 border-green-500">
+                        <span class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Custo Tomografia</span>
+                        <span class="text-4xl font-black text-green-600">R$ 3,63</span>
+                        <span class="text-xs text-gray-400 mt-2">Por conversa (abaixo da média)</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-primary text-white text-sm">
+                                <th class="p-4 font-semibold">Anúncio</th>
+                                <th class="p-4 font-semibold">Formato</th>
+                                <th class="p-4 font-semibold">Gancho</th>
+                                <th class="p-4 font-semibold text-right">Conversas</th>
+                                <th class="p-4 font-semibold text-right">R$ por conversa</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700 text-sm">
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-medium text-primary">Ressonância 2026</td>
+                                <td class="p-4">Vídeo, 43s</td>
+                                <td class="p-4">Novidade: "A espera acabou!", nova ressonância com 26 canais e inteligência artificial</td>
+                                <td class="p-4 text-right font-bold text-green-600">146</td>
+                                <td class="p-4 text-right font-bold text-green-600">2,97</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-medium text-primary">Tomografia (Todos)</td>
+                                <td class="p-4">Vídeo, 61s</td>
+                                <td class="p-4">Sintoma: "Nem toda dor abdominal deve ser ignorada" + sem agendamento e laudo em até 2h</td>
+                                <td class="p-4 text-right font-bold text-green-600">115</td>
+                                <td class="p-4 text-right font-bold text-green-600">3,63</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-medium">Densitometria</td>
+                                <td class="p-4">Estático</td>
+                                <td class="p-4">Nome do exame, nicho com pouca concorrência no feed</td>
+                                <td class="p-4 text-right">41</td>
+                                <td class="p-4 text-right">3,15</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-medium">Raio x panorâmico</td>
+                                <td class="p-4">Estático</td>
+                                <td class="p-4">Nome do exame, CTA para Messenger</td>
+                                <td class="p-4 text-right">45</td>
+                                <td class="p-4 text-right">4,81</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">Ultrassonografia (Geral)</td>
+                                <td class="p-4">Estático</td>
+                                <td class="p-4">"Agende seu ultrassom hoje mesmo"</td>
+                                <td class="p-4 text-right">75</td>
+                                <td class="p-4 text-right">5,79</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-gray-500 italic mb-8">Legenda: Os dois criativos mais baratos da conta, no ar desde março de 2026.</p>
+                
+                <div class="bg-blue-50 border-l-4 border-tertiary p-5 rounded-r-lg mb-8">
+                    <p class="text-primary font-semibold">Jornada que funciona: Instagram e Facebook levam direto para a conversa no WhatsApp.</p>
+                </div>
+
+                <h4 class="text-xl font-bold text-primary mb-4">Padrão de comunicação identificado</h4>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-primary text-sm">
+                                <th class="p-4 font-semibold">Elemento</th>
+                                <th class="p-4 font-semibold">Estratégia</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700 text-sm">
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-bold">Gancho</td>
+                                <td class="p-4">Novidade ("A espera acabou!") ou sintoma ("Nem toda dor abdominal deve ser ignorada")</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-bold">Produto</td>
+                                <td class="p-4">Um exame de imagem por anúncio (ressonância, tomografia)</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-bold">Argumento</td>
+                                <td class="p-4">Tecnologia (26 canais, inteligência artificial) e rapidez concreta (sem agendamento, laudo em até 2h)</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="p-4 font-bold">Criativo</td>
+                                <td class="p-4">Vídeo de 43 a 61 segundos</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">CTA</td>
+                                <td class="p-4">Conversa no WhatsApp ou Messenger</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mt-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-primary">
+                        <h5 class="text-primary font-bold mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            O que isso mostra
+                        </h5>
+                        <p class="text-gray-700 text-sm">os campeões custam entre R$ 2,97 e R$ 3,63 por conversa, de 38% a 49% abaixo da média da conta (R$ 5,83). Os estáticos que só mostram o nome do exame ficam entre R$ 4,81 e R$ 5,79.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-tertiary">
+                        <h5 class="text-primary font-bold mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            Oportunidade para a MedCenter
+                        </h5>
+                        <p class="text-gray-700 text-sm">o prazo do laudo é o centro do posicionamento, mas aparece em um único anúncio (tomografia, 2h). Nenhum concorrente local fala de prazo de laudo nos anúncios.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-gray-900 text-white p-6 rounded-xl shadow-lg relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.714 4.026-9.609 10.033-9.609v3.003c-3.151 0-5.045 1.543-5.045 5.922v1.076h5v7h-10.022zm-14.017 0v-7.391c0-5.714 4.026-9.609 10.033-9.609v3.003c-3.151 0-5.045 1.543-5.045 5.922v1.076h5v7h-10.022z"/></svg>
+                    </div>
+                    <p class="text-sm uppercase tracking-wider text-tertiary font-bold mb-2">Exemplo de anúncio:</p>
+                    <p class="text-lg italic font-light relative z-10">
+                        "Seu médico pediu um raio-X e você quer o resultado logo? Na MedCenter, em Sobral, o laudo do raio-X sai em até 1 hora. Atendimento particular, sem precisar de plano de saúde. Chame no WhatsApp e veja o melhor horário para você."
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. Benchmarking -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+                    Benchmarking de palavras-chave (Google)
+                </h3>
+                <p class="text-lg text-gray-700 mb-8">
+                    Nas buscas de exame com "sobral", a MedCenter já aparece em 60% a 100% das impressões, mas esse volume é pequeno: cerca de 400 buscas por mês. As maiores oportunidades estão em laboratório (1.000 buscas, 1% de presença), clínica (480 buscas, 1%) e especialidades (1.440 buscas nas cinco maiores, a maioria sem anúncio ativo).
+                </p>
+
+                <!-- Accordion: Termos com "sobral" -->
+                <div class="border border-gray-200 rounded-xl bg-white mb-4 overflow-hidden">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-bold text-primary focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="flex items-center gap-2"><svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg> Termos com "sobral"</span>
+                        <svg class="accordion-icon w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="p-6 overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr class="bg-primary text-white text-xs uppercase tracking-wider">
+                                            <th class="p-3">Grupo</th>
+                                            <th class="p-3">Palavra-chave</th>
+                                            <th class="p-3">Buscas/mês</th>
+                                            <th class="p-3">Tendência 12m</th>
+                                            <th class="p-3">Concorrência</th>
+                                            <th class="p-3">Parcela de impr.</th>
+                                            <th class="p-3">Lance de topo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm text-gray-700">
+                                        <!-- Inserting table rows from text -->
+                                        <tr class="border-b"><td class="p-3">Laboratório</td><td class="p-3">laboratório sobral</td><td class="p-3 font-bold">1.000</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3 text-red-500 font-bold">1%</td><td class="p-3">R$ 0,28 – 0,68</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Laboratório</td><td class="p-3">exame de sangue sobral</td><td class="p-3">40</td><td class="p-3 text-red-500">-60%</td><td class="p-3">Baixa</td><td class="p-3">35%</td><td class="p-3">—</td></tr>
+                                        <tr class="border-b"><td class="p-3">Clínica</td><td class="p-3">clínica sobral</td><td class="p-3 font-bold">480</td><td class="p-3 text-red-500">-19%</td><td class="p-3">Baixa</td><td class="p-3 text-red-500 font-bold">1%</td><td class="p-3">R$ 1,54 – 4,02</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Clínica</td><td class="p-3">clínica popular sobral</td><td class="p-3">30</td><td class="p-3 text-red-500">-60%</td><td class="p-3">Baixa</td><td class="p-3">5%</td><td class="p-3">—</td></tr>
+                                        <tr class="border-b"><td class="p-3">Imagem</td><td class="p-3">ultrassom sobral</td><td class="p-3">140</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Média</td><td class="p-3 text-green-600 font-bold">100%</td><td class="p-3">R$ 1,54 – 10,72</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Imagem</td><td class="p-3">ressonância magnética sobral</td><td class="p-3">70</td><td class="p-3 text-red-500">-22%</td><td class="p-3">Baixa</td><td class="p-3 text-green-600">76%</td><td class="p-3">R$ 0,32 – 2,43</td></tr>
+                                        <tr class="border-b"><td class="p-3">Imagem</td><td class="p-3">clínica de imagem sobral</td><td class="p-3">50</td><td class="p-3">0%</td><td class="p-3">Média</td><td class="p-3 text-green-600 font-bold">100%</td><td class="p-3">R$ 0,71 – 4,72</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Imagem</td><td class="p-3">tomografia sobral</td><td class="p-3">40</td><td class="p-3 text-red-500">-33%</td><td class="p-3">Baixa</td><td class="p-3 text-green-600 font-bold">100%</td><td class="p-3">R$ 0,39 – 5,73</td></tr>
+                                        <tr class="border-b"><td class="p-3">Imagem</td><td class="p-3">raio x sobral</td><td class="p-3">30</td><td class="p-3 text-red-500">-60%</td><td class="p-3">Baixa</td><td class="p-3 text-green-600">80%</td><td class="p-3">—</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Imagem</td><td class="p-3">mamografia sobral</td><td class="p-3">20</td><td class="p-3">0%</td><td class="p-3">Média</td><td class="p-3 text-green-600 font-bold">100%</td><td class="p-3">R$ 0,38 – 3,13</td></tr>
+                                        <tr class="border-b"><td class="p-3">Imagem</td><td class="p-3">ultrassonografia sobral</td><td class="p-3">20</td><td class="p-3 text-red-500">-50%</td><td class="p-3">Média</td><td class="p-3">60%</td><td class="p-3">R$ 1,01 – 3,10</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Especialidade</td><td class="p-3">ginecologista sobral</td><td class="p-3 font-bold">590</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 1,47 – 3,58</td></tr>
+                                        <tr class="border-b"><td class="p-3">Especialidade</td><td class="p-3">dermatologista sobral</td><td class="p-3">260</td><td class="p-3 text-red-500">-19%</td><td class="p-3 text-red-500">Alta</td><td class="p-3">1%</td><td class="p-3">R$ 2,24 – 7,78</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Especialidade</td><td class="p-3">endocrinologista sobral</td><td class="p-3">260</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 2,37 – 5,14</td></tr>
+                                        <tr class="border-b"><td class="p-3">Especialidade</td><td class="p-3">psiquiatra sobral</td><td class="p-3">260</td><td class="p-3 text-red-500">-34%</td><td class="p-3">Média</td><td class="p-3">42%</td><td class="p-3">R$ 1,18 – 13,45</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Especialidade</td><td class="p-3">neurologista sobral</td><td class="p-3">210</td><td class="p-3 text-red-500">-19%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 1,60 – 5,53</td></tr>
+                                        <tr class="border-b"><td class="p-3">Especialidade</td><td class="p-3">ortopedista sobral</td><td class="p-3">210</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 1,53 – 2,81</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Especialidade</td><td class="p-3">cardiologista sobral</td><td class="p-3">170</td><td class="p-3 text-green-600 font-bold">+55%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 2,79 – 11,24</td></tr>
+                                        <tr class="border-b"><td class="p-3">Especialidade</td><td class="p-3">pediatra sobral</td><td class="p-3">110</td><td class="p-3 text-red-500">-36%</td><td class="p-3">Baixa</td><td class="p-3">—</td><td class="p-3">R$ 8,88 – 10,70</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Especialidade</td><td class="p-3">mastologista sobral</td><td class="p-3">50</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3">14%</td><td class="p-3">—</td></tr>
+                                        <tr><td class="p-3">Especialidade</td><td class="p-3">alergista sobral</td><td class="p-3">20</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3">35%</td><td class="p-3">R$ 1,21 – 8,72</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion: Termos genéricos -->
+                <div class="border border-gray-200 rounded-xl bg-white mb-6 overflow-hidden">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-bold text-primary focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="flex items-center gap-2"><svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg> Termos genéricos (principais)</span>
+                        <svg class="accordion-icon w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="p-6 overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr class="bg-primary text-white text-xs uppercase tracking-wider">
+                                            <th class="p-3">Grupo</th>
+                                            <th class="p-3">Palavra-chave</th>
+                                            <th class="p-3">Buscas/mês</th>
+                                            <th class="p-3">3 meses</th>
+                                            <th class="p-3">12 meses</th>
+                                            <th class="p-3">Concorrência</th>
+                                            <th class="p-3">Lance de topo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm text-gray-700">
+                                        <tr class="border-b"><td class="p-3">Ressonância</td><td class="p-3">ressonância magnética valor</td><td class="p-3 font-bold">18.100</td><td class="p-3 text-red-500">-18%</td><td class="p-3 text-red-500">-33%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,10 – 3,64</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Ressonância</td><td class="p-3">ressonância com sedação</td><td class="p-3">880</td><td class="p-3 text-red-500">-18%</td><td class="p-3 text-red-500">-28%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,34 – 4,84</td></tr>
+                                        <tr class="border-b"><td class="p-3">Ressonância</td><td class="p-3">ressonância magnética particular</td><td class="p-3">140</td><td class="p-3 text-green-600">+27%</td><td class="p-3">0%</td><td class="p-3">Média</td><td class="p-3">R$ 2,03 – 7,25</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Tomografia</td><td class="p-3">tomografia computadorizada</td><td class="p-3 font-bold">14.800</td><td class="p-3 text-green-600">+22%</td><td class="p-3 text-red-500">-33%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,43 – 5,26</td></tr>
+                                        <tr class="border-b"><td class="p-3">Tomografia</td><td class="p-3">tomografia valor</td><td class="p-3 font-bold">3.600</td><td class="p-3">0%</td><td class="p-3 text-red-500">-33%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,13 – 3,79</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Raio-X</td><td class="p-3">raio x panorâmico</td><td class="p-3 font-bold">18.100</td><td class="p-3 text-red-500">-18%</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,80 – 7,45</td></tr>
+                                        <tr class="border-b"><td class="p-3">Raio-X</td><td class="p-3">raio x valor</td><td class="p-3 font-bold">1.000</td><td class="p-3">0%</td><td class="p-3">0%</td><td class="p-3">Baixa</td><td class="p-3">R$ 0,95 – 2,99</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Ultrassom</td><td class="p-3">ultrassom morfológico</td><td class="p-3 font-bold">40.500</td><td class="p-3">0%</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,69 – 5,05</td></tr>
+                                        <tr class="border-b"><td class="p-3">Ultrassom</td><td class="p-3">ultrassom obstétrico</td><td class="p-3 font-bold">33.100</td><td class="p-3">0%</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Média</td><td class="p-3">R$ 1,79 – 5,36</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Ultrassom</td><td class="p-3">ultrassom transvaginal</td><td class="p-3 font-bold">33.100</td><td class="p-3">0%</td><td class="p-3 text-red-500">-18%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,77 – 6,02</td></tr>
+                                        <tr class="border-b"><td class="p-3">Laboratório</td><td class="p-3">laboratório perto de mim</td><td class="p-3 font-bold">14.800</td><td class="p-3">0%</td><td class="p-3">0%</td><td class="p-3">Média</td><td class="p-3">R$ 0,91 – 6,02</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-3">Laboratório</td><td class="p-3">check up completo</td><td class="p-3 font-bold">1.300</td><td class="p-3">0%</td><td class="p-3 text-green-600">+23%</td><td class="p-3">Baixa</td><td class="p-3">R$ 1,24 – 6,05</td></tr>
+                                        <tr class="border-b"><td class="p-3">Clínica</td><td class="p-3">clínica perto de mim</td><td class="p-3 font-bold">6.600</td><td class="p-3">0%</td><td class="p-3 text-green-600">+22%</td><td class="p-3">Média</td><td class="p-3">R$ 1,88 – 7,39</td></tr>
+                                        <tr><td class="p-3">Clínica</td><td class="p-3">exames preço popular</td><td class="p-3">170</td><td class="p-3">0%</td><td class="p-3">0%</td><td class="p-3 text-red-500">Alta</td><td class="p-3">R$ 1,71 – 6,82</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded border border-gray-200 mb-6 text-center text-sm text-gray-600 italic">
+                    [PRINT: Planejador de Palavras-chave, grupos Laboratório e Clínica] <br>Legenda: Laboratório e clínica: alta demanda local e presença de 1%.
+                </div>
+
+                <div class="bg-transparent mt-10">
+                    <h4 class="text-xl font-bold text-primary mb-6">O que os dados mostram</h4>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div class="flashcard bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-tertiary mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                            <p class="text-gray-700 text-sm"><strong class="text-primary block mb-1">Laboratório é a maior oportunidade:</strong> de curto prazo: 1.000 buscas, concorrência baixa, lance de até R$ 0,68 e presença de 1%.</p>
+                        </div>
+                        <div class="flashcard bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-tertiary mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <p class="text-gray-700 text-sm"><strong class="text-primary block mb-1">"Clínica sobral" e o modelo único:</strong> conversa com o "tudo num só lugar": 480 buscas e 1% de presença.</p>
+                        </div>
+                        <div class="flashcard bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-tertiary mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            </div>
+                            <p class="text-gray-700 text-sm"><strong class="text-primary block mb-1">Especialidades com demanda oculta:</strong> ginecologia, endocrinologia, neurologia, ortopedia e cardiologia somam 1.440 buscas/mês (sem anúncios). Cardiologista cresceu 55%.</p>
+                        </div>
+                        <div class="flashcard bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-tertiary mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </div>
+                            <p class="text-gray-700 text-sm"><strong class="text-primary block mb-1">Imagens já dominam a pesquisa:</strong> crescer depende de converter melhor, e não de mais volume. Presença já fica entre 60% e 100%.</p>
+                        </div>
+                        <div class="flashcard bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-tertiary mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <p class="text-gray-700 text-sm"><strong class="text-primary block mb-1">Fator Preço é o gatilho:</strong> ("valor", "particular", "preço popular") aparece em todos exames, reforçando o gancho para quem não tem plano.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Visão geral da mídia paga -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span>
+                    Visão geral da mídia paga da MedCenter
+                </h3>
+
+                <!-- Accordion: Visão geral -->
+                <div class="border border-gray-200 rounded-xl bg-white mb-6 overflow-hidden">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-bold text-primary focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="flex items-center gap-2"><svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg> Visão geral, estrutura e rastreamento</span>
+                        <svg class="accordion-icon w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="p-6">
+                                <p class="text-gray-700 mb-6">A MedCenter investiu R$ 10.074 em 30 dias, dividido de forma parecida entre Meta e Google. A Meta gera conversa barata. O Google gera clique com CTR alto. Nenhum dos dois mostra quantos contatos viram exame agendado.</p>
+                                
+                                <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg mb-6">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr class="bg-gray-100 text-primary text-sm">
+                                                <th class="p-3 font-semibold">Canal</th>
+                                                <th class="p-3 font-semibold">Gasto no período</th>
+                                                <th class="p-3 font-semibold">Resultado</th>
+                                                <th class="p-3 font-semibold">Oferta / gancho anunciado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-sm text-gray-700">
+                                            <tr class="border-b">
+                                                <td class="p-3 font-medium">Meta Ads (Facebook + Instagram)</td>
+                                                <td class="p-3 font-bold text-red-600">R$ 5.356</td>
+                                                <td class="p-3">919 conversas · R$ 5,83 por conversa</td>
+                                                <td class="p-3">Nome do exame + "Agende seu exame". Novidade da ressonância. Tomografia sem agendamento, laudo em 2h</td>
+                                            </tr>
+                                            <tr class="border-b bg-gray-50">
+                                                <td class="p-3 font-medium">Google Ads (Pesquisa)</td>
+                                                <td class="p-3 font-bold text-red-600">R$ 4.718</td>
+                                                <td class="p-3">1.516 cliques · 32 ligações · R$ 147 por ligação</td>
+                                                <td class="p-3">"Ressonância em Sobral Hoje", "Exames com Resultados Rápidos", "Marque pelo WhatsApp"</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 font-medium">TikTok, YouTube, Display</td>
+                                                <td class="p-3 text-gray-400">Sem anúncio no período</td>
+                                                <td class="p-3 text-gray-400">—</td>
+                                                <td class="p-3 text-gray-400">—</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-sm text-gray-600 bg-yellow-50 p-4 rounded border border-yellow-200">
+                                    <strong>Rastreamento:</strong> no código do site só existe a tag do Google Ads (AW-706267023 e um segundo ID, 1803881703). Não há Google Tag Manager, <span class="tooltip-trigger">GA4<span class="tooltip-content">Google Analytics 4 - Ferramenta de análise de tráfego.</span></span> nem Pixel da Meta. Os cliques nos WhatsApps do site e no 0800 não são registrados, e os anúncios do Google não usam <span class="tooltip-trigger">UTM<span class="tooltip-content">Parâmetros adicionados a URLs para rastrear a origem do tráfego.</span></span>. Os dois algoritmos otimizam para o que conseguem medir: conversa aberta e ligação.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <figure class="mt-6 mb-8 text-center reveal">
+                    <img src="https://i.imgur.com/kjfMMjn.png" alt="Rastreamento" class="mx-auto rounded-lg shadow-md border border-gray-200 clickable-img max-w-full h-auto" onclick="openLightbox(this.src)">
+                    <figcaption class="text-sm text-gray-500 mt-3 italic">Legenda: Sem GTM, GA4 nem Pixel: o clique no WhatsApp não é medido.</figcaption>
+                </figure>
+            </div>
+
+            <!-- 4. Desempenho -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span>
+                    Desempenho, custos e histórico
+                </h3>
+
+                <!-- Accordion: Desempenho -->
+                <div class="border border-gray-200 rounded-xl bg-white mb-6 overflow-hidden">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-bold text-primary focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="flex items-center gap-2"><svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg> Desempenho, custos e histórico</span>
+                        <svg class="accordion-icon w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="p-6 overflow-x-auto">
+                                <h4 class="font-bold text-gray-800 mb-3">Meta Ads · 12/10 a 10/11/2026</h4>
+                                <table class="w-full text-left border-collapse min-w-[700px]">
+                                    <thead>
+                                        <tr class="bg-primary text-white text-xs uppercase tracking-wider">
+                                            <th class="p-2">Campanha</th>
+                                            <th class="p-2">Gasto</th>
+                                            <th class="p-2">Conversas</th>
+                                            <th class="p-2">R$ / conversa</th>
+                                            <th class="p-2">Frequência</th>
+                                            <th class="p-2">CTR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-xs text-gray-700">
+                                        <tr class="border-b"><td class="p-2 font-medium">Ressonância Magnética Sobral</td><td class="p-2">R$ 433,59</td><td class="p-2 text-green-600 font-bold">146</td><td class="p-2">2,97</td><td class="p-2">2,28</td><td class="p-2">1,99%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Densitometria óssea Sobral</td><td class="p-2">R$ 129,23</td><td class="p-2">41</td><td class="p-2">3,15</td><td class="p-2">1,94</td><td class="p-2">1,68%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Tomografia Sobral</td><td class="p-2">R$ 436,60</td><td class="p-2 text-green-600 font-bold">118</td><td class="p-2">3,70</td><td class="p-2">2,17</td><td class="p-2">2,09%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Eletroencefalograma Sobral</td><td class="p-2">R$ 127,20</td><td class="p-2">27</td><td class="p-2">4,71</td><td class="p-2">1,56</td><td class="p-2">0,96%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Raio X Sobral</td><td class="p-2">R$ 219,36</td><td class="p-2">45</td><td class="p-2">4,87</td><td class="p-2">1,84</td><td class="p-2">1,02%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Anúncios Massapê</td><td class="p-2">R$ 343,35</td><td class="p-2">69</td><td class="p-2">4,98</td><td class="p-2 font-bold text-yellow-600">3,77</td><td class="p-2">1,23%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Ultrassom Sobral</td><td class="p-2">R$ 434,47</td><td class="p-2">75</td><td class="p-2">5,79</td><td class="p-2">2,46</td><td class="p-2">1,64%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Saúde Ocupacional</td><td class="p-2">R$ 336,09</td><td class="p-2">51</td><td class="p-2">6,59</td><td class="p-2">2,45</td><td class="p-2">1,80%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Exames laboratoriais Sobral</td><td class="p-2">R$ 131,66</td><td class="p-2">19</td><td class="p-2">6,93</td><td class="p-2">1,88</td><td class="p-2">1,55%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Anúncios Martinópole</td><td class="p-2">R$ 350,28</td><td class="p-2">49</td><td class="p-2">7,15</td><td class="p-2 font-bold text-red-500">5,41</td><td class="p-2">1,00%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Vacina da Gripe</td><td class="p-2">R$ 435,03</td><td class="p-2">59</td><td class="p-2">7,37</td><td class="p-2">2,45</td><td class="p-2">2,55%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Saúde da mulher Sobral</td><td class="p-2">R$ 127,74</td><td class="p-2">17</td><td class="p-2">7,51</td><td class="p-2">1,57</td><td class="p-2">1,18%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Exames Cardiológicos Sobral</td><td class="p-2">R$ 131,68</td><td class="p-2">17</td><td class="p-2">7,75</td><td class="p-2">1,92</td><td class="p-2">1,41%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Anúncios Forquilha</td><td class="p-2">R$ 355,04</td><td class="p-2">45</td><td class="p-2">7,89</td><td class="p-2 font-bold text-yellow-600">3,24</td><td class="p-2">1,10%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Odontologia em Sobral</td><td class="p-2">R$ 419,04</td><td class="p-2">52</td><td class="p-2">8,06</td><td class="p-2">2,15</td><td class="p-2">2,29%</td></tr>
+                                        <tr class="border-b bg-gray-50"><td class="p-2 font-medium">Polissonografia e Espirometria</td><td class="p-2">R$ 130,61</td><td class="p-2">14</td><td class="p-2">9,33</td><td class="p-2">1,87</td><td class="p-2">1,09%</td></tr>
+                                        <tr class="border-b"><td class="p-2 font-medium">Clínico Geral Sobral</td><td class="p-2">R$ 130,62</td><td class="p-2">13</td><td class="p-2">10,05</td><td class="p-2">1,69</td><td class="p-2">1,34%</td></tr>
+                                        <tr class="bg-red-50"><td class="p-2 font-medium">Anúncios Granja</td><td class="p-2 font-bold">R$ 684,04</td><td class="p-2">62</td><td class="p-2 font-bold text-red-600">11,03</td><td class="p-2 font-bold text-red-600">7,22</td><td class="p-2">0,73%</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <img src="https://i.imgur.com/EwpAYAo.png" alt="Gráfico de Desempenho" class="mx-auto rounded-lg shadow-md border border-gray-200 clickable-img mb-6 max-w-full h-auto reveal" onclick="openLightbox(this.src)">
+
+                <div class="bg-white p-6 rounded-xl shadow border-l-4 border-red-500 mb-8 reveal">
+                    <p class="text-gray-800"><strong>O que isso mostra:</strong> Granja recebe a maior verba da Meta (R$ 684) e tem o maior custo por conversa (R$ 11,03). Com frequência de 7,2, o mesmo público viu o anúncio cerca de 7 vezes no mês.</p>
+                </div>
+
+                <h4 class="text-xl font-bold text-primary mb-4 reveal">Termos de pesquisa e desperdício</h4>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 mb-8 reveal">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-primary text-sm">
+                                <th class="p-3 font-semibold">Categoria</th>
+                                <th class="p-3 font-semibold">Custo no mês</th>
+                                <th class="p-3 font-semibold">Exemplos</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-700">
+                            <tr class="border-b"><td class="p-3 font-medium">Marca</td><td class="p-3">~R$ 112</td><td class="p-3 italic">"medcenter", "telefone medcenter sobral", "med center"</td></tr>
+                            <tr class="border-b bg-gray-50"><td class="p-3 font-medium text-red-500">Concorrentes</td><td class="p-3 text-red-500">~R$ 94</td><td class="p-3 italic">"telefone da medscan sobral", "clínica são carlos sobral", "lacliso sobral", "telefone da cdi", "clínica são lucas sobral"</td></tr>
+                            <tr><td class="p-3 font-medium">Paciente buscando resultado</td><td class="p-3">~R$ 18</td><td class="p-3 italic">"medcenter sobral resultado de exames"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-xl font-bold text-primary mb-4 reveal">Média de mercado (Google Ads, Pesquisa)</h4>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 reveal">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-primary text-white text-sm">
+                                <th class="p-3 font-semibold">Métrica</th>
+                                <th class="p-3 font-semibold">MedCenter (30 dias)</th>
+                                <th class="p-3 font-semibold">Médicos e clínicas</th>
+                                <th class="p-3 font-semibold">Média de todos os setores</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-700">
+                            <tr class="border-b"><td class="p-3 font-medium">CTR</td><td class="p-3 font-bold text-green-600">9,4%</td><td class="p-3">6,61%</td><td class="p-3">6,64%</td></tr>
+                            <tr><td class="p-3 font-medium">Taxa de conversão</td><td class="p-3 text-red-500">2,1% (só ligações)</td><td class="p-3 font-bold">12,43%</td><td class="p-3">8,18%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. Análise dos criativos -->
+            <div class="mb-16 reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span>
+                    Análise dos criativos
+                </h3>
+                <p class="text-lg text-gray-700 mb-6">
+                    Os criativos que vendem melhor partem de uma novidade ou de um sintoma e mostram a rapidez em número. Todos os anúncios ativos estão no ar há 225 a 236 dias sem renovação.
+                </p>
+
+                <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                    <!-- Tabela Criativos -->
+                    <div>
+                        <h4 class="text-lg font-bold text-primary mb-3">Criativos campeões (Meta Ads, 30 dias)</h4>
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 h-full">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-primary text-sm">
+                                        <th class="p-3 font-semibold">Anúncio</th>
+                                        <th class="p-3 font-semibold">Formato</th>
+                                        <th class="p-3 font-semibold">Conversas</th>
+                                        <th class="p-3 font-semibold">R$ / conv.</th>
+                                        <th class="p-3 font-semibold">Freq.</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm text-gray-700">
+                                    <tr class="border-b"><td class="p-3">Ressonância 2026</td><td class="p-3">Vídeo 43s</td><td class="p-3 font-bold text-green-600">146</td><td class="p-3 font-bold">2,97</td><td class="p-3">2,28</td></tr>
+                                    <tr class="border-b"><td class="p-3">Tomografia (Todos)</td><td class="p-3">Vídeo 61s</td><td class="p-3 font-bold text-green-600">115</td><td class="p-3 font-bold">3,63</td><td class="p-3">2,17</td></tr>
+                                    <tr><td class="p-3">Densitometria</td><td class="p-3">Estático</td><td class="p-3">41</td><td class="p-3">3,15</td><td class="p-3">1,94</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabela Ganchos -->
+                    <div>
+                        <h4 class="text-lg font-bold text-primary mb-3">Ganchos no Google</h4>
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 h-full">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-primary text-sm">
+                                        <th class="p-3 font-semibold">Gancho</th>
+                                        <th class="p-3 font-semibold">Títulos</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Velocidade</td><td class="p-3 italic">"Ressonância em Sobral Hoje", "Exames com Resultados Rápidos"</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Canal de contato</td><td class="p-3 italic">"Marque pelo WhatsApp"</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium text-red-500">Desconto / preço</td><td class="p-3">Não usado</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium text-red-500">Prova</td><td class="p-3">Não usada</td></tr>
+                                    <tr><td class="p-3 font-medium text-yellow-600">Erro</td><td class="p-3">"Agende Sua tomografia Hoje" dentro do anúncio de ressonância</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 text-white p-6 rounded-xl shadow-lg border-l-4 border-tertiary">
+                    <h4 class="text-xl font-bold mb-4 text-tertiary">O que falta nos criativos</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-red-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> <strong>Prova social:</strong> a nota 4,8 com cerca de 2 mil avaliações no Google não aparece em nenhuma peça.</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-red-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> <strong>Posicionamento:</strong> "laudo do raio-X em até 1h, ressonância em até 3h" não aparece. O único prazo citado é o da tomografia (2h).</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-red-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> <strong>Fala com a Rita:</strong> nenhuma peça fala de quem não tem plano, cuida dos filhos e dos pais e quer resolver tudo num só lugar.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 7. Plano de ação -->
+            <div class="reveal">
+                <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <span class="bg-tertiary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">7</span>
+                    Plano de ação de mídia paga
+                </h3>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-tertiary mb-8">
+                    <h4 class="font-bold text-primary text-lg mb-3">Mensuração (antes de investir)</h4>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700 text-sm">
+                        <li>Instalar o Google Tag Manager e, por ele, o GA4 e o Pixel da Meta com API de Conversões.</li>
+                        <li>Criar evento de clique em cada WhatsApp e no 0800, com o número e a Unidade como parâmetro.</li>
+                        <li>Importar o clique no WhatsApp como conversão no Google Ads.</li>
+                        <li>Padronizar UTMs em todos os anúncios (canal, campanha, exame, criativo).</li>
+                        <li>Registrar a origem de cada atendimento e marcar "exame agendado" e "exame realizado". Devolver isso como conversão offline para a Meta e o Google.</li>
+                        <li>Criar o evento "entrega de resultado" no portal de laudos.</li>
+                    </ol>
+                </div>
+
+                <!-- Tabs for Ad Structures -->
+                <div class="mb-8">
+                    <div class="flex overflow-x-auto border-b border-gray-200 mb-6 custom-scrollbar">
+                        <button class="tab-btn active px-6 py-3 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'tab-meta', 'ads-tabs')">
+                            <span class="flex items-center gap-2"><svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Nova estrutura Meta Ads</span>
+                        </button>
+                        <button class="tab-btn px-6 py-3 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'tab-google', 'ads-tabs')">
+                            <span class="flex items-center gap-2"><svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.81c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.027 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg> Nova estrutura Google Ads</span>
+                        </button>
+                    </div>
+
+                    <div id="tab-meta" class="tab-pane ads-tabs active">
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-primary">
+                                        <th class="p-4 border-b font-semibold">Campanha</th>
+                                        <th class="p-4 border-b font-semibold">Público</th>
+                                        <th class="p-4 border-b font-semibold">Região</th>
+                                        <th class="p-4 border-b font-semibold">Destino</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-4 font-medium">Imagem (ressonância, tomografia, raio-X, ultrassom)</td><td class="p-4">Aberto, 28 a 60 anos</td><td class="p-4">Sobral e cidades vizinhas, Unidades incluídas</td><td class="p-4 font-bold text-green-600">WhatsApp da Matriz, rastreado</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-4 font-medium">Exames e laboratório</td><td class="p-4">Aberto</td><td class="p-4">Sobral e cidades vizinhas</td><td class="p-4 font-bold text-green-600">WhatsApp da Matriz, rastreado</td></tr>
+                                    <tr class="border-b"><td class="p-4 font-medium">Odonto e vacinas</td><td class="p-4">Aberto</td><td class="p-4">Sobral e cidades vizinhas</td><td class="p-4">WhatsApp da vertical [Pendente: número oficial]</td></tr>
+                                    <tr class="bg-gray-50"><td class="p-4 font-medium">Família (remarketing)</td><td class="p-4">Quem conversou, viu 50% dos vídeos ou engajou no perfil</td><td class="p-4">Toda a região</td><td class="p-4">WhatsApp da Matriz</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-google" class="tab-pane ads-tabs">
+                        <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-blue-50 text-primary">
+                                        <th class="p-4 border-b font-semibold">Campanha</th>
+                                        <th class="p-4 border-b font-semibold">Palavras-chave</th>
+                                        <th class="p-4 border-b font-semibold">Região</th>
+                                        <th class="p-4 border-b font-semibold">Destino</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-4 font-medium">Marca</td><td class="p-4">medcenter, medcenter sobral, med center</td><td class="p-4">Sobral e região</td><td class="p-4">Sitelinks: resultados, Unidades, WhatsApp</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-4 font-medium">Laboratório</td><td class="p-4">laboratório sobral, exame de sangue sobral, check up</td><td class="p-4">Sobral e região</td><td class="p-4">Página de laboratório</td></tr>
+                                    <tr class="border-b"><td class="p-4 font-medium">Imagem por exame</td><td class="p-4">ressonância / tomografia / raio-X / ultrassom + sobral, valor, particular</td><td class="p-4">Sobral e região</td><td class="p-4">Página de cada exame</td></tr>
+                                    <tr class="bg-gray-50"><td class="p-4 font-medium">Clínica</td><td class="p-4">clínica sobral, clínica perto de mim</td><td class="p-4">Sobral e região</td><td class="p-4">Página "tudo num só lugar"</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-5 rounded-lg border border-gray-300 text-sm text-gray-700 mb-6">
+                    <strong>Configurações para todas:</strong> correspondência de frase e exata nas palavras principais. Negativas de marca nas campanhas de exame, de concorrentes (medscan, são carlos, lacliso, cdi, são lucas) e de "resultado". Idioma português. Extensão de local ativa. Lance inicial em "maximizar conversões", com troca para CPA desejado depois de 30 conversões por campanha. Mover a verba de Psiquiatria, Ocupacional e Dentista para Laboratório e Ressonância.
+                </div>
+
+                <h4 class="font-bold text-primary text-lg mb-3">Anúncios e testes</h4>
+                <ul class="list-none space-y-2 text-gray-700">
+                    <li class="flex gap-2"><span class="text-tertiary">➤</span> 3 a 5 criativos por conjunto, testando um gancho por vez: laudo rápido × sintoma × novidade × sem plano de saúde.</li>
+                    <li class="flex gap-2"><span class="text-tertiary">➤</span> Gancho do posicionamento: "Laudo do raio-X em até 1 hora. Ressonância em até 3 horas." [Confirmar: 3h para rotina]</li>
+                    <li class="flex gap-2"><span class="text-tertiary">➤</span> Trocar já os criativos que estão nas campanhas de Granja e Martinópole.</li>
+                    <li class="flex gap-2"><span class="text-tertiary">➤</span> Renovar a cada 30 a 45 dias, ou quando a frequência passar de 3.</li>
+                    <li class="flex gap-2"><span class="text-tertiary">➤</span> Revisão semanal. A métrica de acompanhamento é o custo por exame agendado. Até o rastreamento ficar pronto, vale o custo por conversa.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão: IA e CIM -->
+    <!-- Using parallax separator -->
+    <div class="h-64 bg-fixed bg-center bg-cover flex items-center justify-center relative" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop');">
+        <div class="absolute inset-0 bg-primary opacity-80"></div>
+        <h2 class="relative z-10 text-3xl md:text-5xl font-bold text-white text-center px-4 reveal">Busca em IA generativa, Google e CIM</h2>
+    </div>
+
+    <section class="section-padding bg-white relative">
+        <div class="container-inner">
+            <h3 class="text-2xl font-bold text-primary mb-4 reveal">Comunicação Integrada de Marketing</h3>
+            <p class="text-lg text-gray-700 mb-8 reveal">
+                A MedCenter aparece na internet com versões diferentes do mesmo dado: dois números de endereço na Matriz, três endereços em Granja, três WhatsApps em Martinópole, três horários da Matriz no próprio site e cinco destinos no link da bio. O Google e as IAs cruzam essas fontes e, quando elas não batem, escolhem uma versão ou misturam as duas.<br><br>
+                Nosso papel aqui é mostrar onde estão as divergências. Cada uma pede uma definição da MedCenter antes de qualquer correção.
+            </p>
+
+            <h4 class="text-xl font-extrabold text-v4red mb-6 reveal flex items-center gap-2">
+                <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Divergências que a MedCenter precisa definir
+            </h4>
+            
+            <!-- CIM Tabs Container (Replaces stacked tables) -->
+            <div class="reveal mb-12 bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+                <div class="flex overflow-x-auto border-b border-gray-200 bg-gray-50 custom-scrollbar">
+                    <button class="tab-btn active px-6 py-4 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'cim-endereco', 'cim-tabs')">1. Endereço</button>
+                    <button class="tab-btn px-6 py-4 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'cim-telefone', 'cim-tabs')">2. Telefone/Whats</button>
+                    <button class="tab-btn px-6 py-4 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'cim-horario', 'cim-tabs')">3. Horário</button>
+                    <button class="tab-btn px-6 py-4 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'cim-nome', 'cim-tabs')">4. Fichas Google</button>
+                    <button class="tab-btn px-6 py-4 font-bold text-gray-500 whitespace-nowrap" onclick="switchTab(event, 'cim-site', 'cim-tabs')">5. Site e Detalhes</button>
+                </div>
+
+                <div class="p-6">
+                    <!-- Tab 1: Endereço -->
+                    <div id="cim-endereco" class="tab-pane cim-tabs active">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600 rounded-t-lg">
+                                        <th class="p-3">Unidade</th><th class="p-3">Versão A (onde)</th><th class="p-3">Versão B (onde)</th><th class="p-3">Versão C (onde)</th><th class="p-3 bg-red-100 text-v4red rounded-tr-lg">A MedCenter define</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Matriz (Sobral)</td><td class="p-3">nº 2420 (Google, Instagram, Doctoralia, CNPJ na Receita)</td><td class="p-3">nº 2428 (site, ficha Vacinas)</td><td class="p-3">—</td><td class="p-3 bg-red-50 font-medium border-l border-white">Qual é o número oficial</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Massapê</td><td class="p-3">nº 134 (Google)</td><td class="p-3">nº 434 (site, Instagram)</td><td class="p-3">—</td><td class="p-3 bg-red-50 font-medium border-l border-white">Qual é o número oficial</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Forquilha</td><td class="p-3">nº 15, "de Siqueira" (site)</td><td class="p-3">nº 25, "de Oliveira" ([Pendente: fonte no print])</td><td class="p-3">—</td><td class="p-3 bg-red-50 font-medium border-l border-white">Número e nome da rua oficiais</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Granja</td><td class="p-3">Rua Costa Barros, 324 (site)</td><td class="p-3">Rua Tristão Gonçalves</td><td class="p-3">Rua Pessoa Anta, 125 (CNPJ)</td><td class="p-3 bg-red-50 font-medium border-l border-white">Endereço de atendimento e se o CNPJ precisa ser atualizado</td></tr>
+                                    <tr><td class="p-3 font-medium">Martinópole</td><td class="p-3">CNPJ com endereço de Forquilha</td><td class="p-3">—</td><td class="p-3">—</td><td class="p-3 bg-red-50 font-medium border-l border-white">Endereço oficial e situação do CNPJ</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Telefone/Whats -->
+                    <div id="cim-telefone" class="tab-pane cim-tabs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600">
+                                        <th class="p-3">Unidade</th><th class="p-3">O que encontramos</th><th class="p-3 bg-red-100 text-v4red">A MedCenter define</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Martinópole</td><td class="p-3">3 WhatsApps: 99297-2453 (bio e número exibido no site), 98844-9542 (post fixado), 98844-9552 (link do site). Ficha do Google sem telefone</td><td class="p-3 bg-red-50 font-medium">Qual é o WhatsApp oficial</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Odonto e Vacinas</td><td class="p-3">Usam o WhatsApp da Matriz (99493-3942)</td><td class="p-3 bg-red-50 font-medium">Se cada vertical terá número próprio ou se fica o da Matriz</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Exames (site)</td><td class="p-3">Os 12 links de exames do rodapé, em todas as páginas, levam para (88) 99253-1740, um dos números antigos</td><td class="p-3 bg-red-50 font-medium">Se esse número está ativo e de quem é</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Rede</td><td class="p-3">(88) 2144-5536 ainda circula</td><td class="p-3 bg-red-50 font-medium">Se está desativado ou redirecionado</td></tr>
+                                    <tr><td class="p-3 font-medium">Rede</td><td class="p-3">0800 000 3309</td><td class="p-3 bg-green-50 text-green-700 font-medium">Já definido: igual em todas as fontes</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Horário -->
+                    <div id="cim-horario" class="tab-pane cim-tabs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600">
+                                        <th class="p-3">Dado</th><th class="p-3">O que encontramos</th><th class="p-3 bg-red-100 text-v4red">A MedCenter define</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Horário da Matriz</td><td class="p-3">Seg–sex 7h–17h e sáb 7h–13h (topo da home) × seg–sex 8h–18h (bloco de Unidades) × sáb 7h–12h (rodapé)</td><td class="p-3 bg-red-50 font-medium">Horário oficial, com sábado</td></tr>
+                                    <tr class="bg-gray-50"><td class="p-3 font-medium">Horário das Unidades</td><td class="p-3">Seg–sex 8h–18h no site, sem sábado. Visão geral do Google mostra horários diferentes (Granja, Forquilha, Odonto, Vacinas)</td><td class="p-3 bg-red-50 font-medium">Horário oficial de cada Unidade</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Fichas Google -->
+                    <div id="cim-nome" class="tab-pane cim-tabs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600">
+                                        <th class="p-3">Ficha</th><th class="p-3">Nome hoje</th><th class="p-3">Categoria hoje</th><th class="p-3 bg-red-100 text-v4red">A MedCenter define</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Matriz</td><td class="p-3">Nome com serviços e cidade</td><td class="p-3">[Pendente: categoria atual]</td><td class="p-3 bg-green-50 text-green-700">Já definido: "MedCenter Clínica & Imagem"</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Massapê</td><td class="p-3">"Medcenter Clínica & Ultrassom"</td><td class="p-3">Médico</td><td class="p-3 bg-yellow-50">Já definido: "MedCenter Massapê". Falta dizer se a Unidade faz imagem</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Forquilha</td><td class="p-3">"MedCenter Clínica Forquilha"</td><td class="p-3">Consultório médico</td><td class="p-3 bg-yellow-50">Já definido: "MedCenter Forquilha". Falta dizer se a Unidade faz imagem</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Granja</td><td class="p-3">[Pendente: nome atual]</td><td class="p-3">Centro médico</td><td class="p-3 bg-red-50">Se a Unidade faz imagem</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Martinópole</td><td class="p-3">[Pendente: nome atual]</td><td class="p-3">Médico</td><td class="p-3 bg-red-50">Se a Unidade faz imagem</td></tr>
+                                    <tr><td class="p-3 font-medium">Vacinas</td><td class="p-3">"MedCenter Vacinas - Sobral"</td><td class="p-3">[Pendente]</td><td class="p-3 bg-green-50 text-green-700">Já definido: "MedCenter Vacinas"</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: Site e Detalhes -->
+                    <div id="cim-site" class="tab-pane cim-tabs">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600">
+                                        <th class="p-3">Dado</th><th class="p-3">O que encontramos</th><th class="p-3 bg-red-100 text-v4red">A MedCenter define</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b"><td class="p-3 font-medium">Site</td><td class="p-3">medcenterclinica.com e medcenter.com.br</td><td class="p-3 bg-yellow-50">Já definido: medcenterclinica.com. Falta definir se medcenter.com.br redireciona (301) ou fica como site da rede</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Site nas fichas</td><td class="p-3">Forquilha e Martinópole sem site vinculado</td><td class="p-3 bg-red-50">Para qual página o link vai (home ou página da Unidade)</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Link da bio</td><td class="p-3">5 destinos diferentes entre os perfis</td><td class="p-3 bg-red-50">Destino padrão de cada perfil</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">E-mail</td><td class="p-3">falecom@medcenter.com, em domínio diferente do site</td><td class="p-3 bg-red-50">E-mail oficial no domínio do site</td></tr>
+                                    <tr class="border-b"><td class="p-3 font-medium">Descrição das fichas</td><td class="p-3">Nenhuma das 7 cita a Matriz</td><td class="p-3 bg-green-50 text-green-700">Já definido: toda Unidade cita a Matriz, e a Matriz cita as Unidades</td></tr>
+                                    <tr class="border-b bg-gray-50"><td class="p-3 font-medium">Serviços por Unidade</td><td class="p-3">Ressonância e tomografia promovidas em perfis de Unidades que talvez não façam o exame</td><td class="p-3 bg-red-50">O que cada Unidade faz no local e o que vai para a Matriz</td></tr>
+                                    <tr><td class="p-3 font-medium">Prazo do laudo</td><td class="p-3 text-red-500 font-bold">Três versões no site: "até 1 hora" (home), "ressonância em até 3 horas" (/medcenter/), "rotina até 24 horas, urgência até 3 horas" (/ressonancia/)</td><td class="p-3 bg-red-50 font-bold">Prazo oficial por exame, rotina e urgência</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IAs -->
+            <div class="mb-12 reveal">
+                <h4 class="text-2xl font-bold text-primary mb-4">O que as IAs dizem hoje</h4>
+                <p class="text-gray-700 mb-6">Fizemos as perguntas que um paciente faria a uma IA. Das 5 respostas analisadas, a MedCenter aparece em só uma. Mesmo nela, não é a primeira indicação, e o prazo de laudo citado é diferente do que a MedCenter comunica. Nas buscas por ressonância e por vacina, a MedCenter não aparece.</p>
+                
+                <div class="overflow-x-auto bg-white border border-gray-200 shadow-sm rounded-xl mb-8">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-primary">
+                                <th class="p-3">Pergunta do paciente</th><th class="p-3">O que a IA respondeu</th><th class="p-3">A MedCenter aparece?</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b"><td class="p-3 font-medium">Qual a melhor clínica de exames de imagem em Sobral?</td><td class="p-3">Lista 6 clínicas: Boghos, MedCenter, São Carlos, São Lucas, MedScan e Chromos</td><td class="p-3 font-bold text-yellow-600">Sim, em 2º</td></tr>
+                            <tr class="border-b"><td class="p-3 font-medium">"Qual é a melhor delas?"</td><td class="p-3">Indica a Boghos como a melhor. MedCenter aparece como "alternativa para praticidade", com "relatos de entrega em até 24 horas"</td><td class="p-3 text-yellow-600">Sim, como alternativa</td></tr>
+                            <tr class="border-b"><td class="p-3 font-medium">Mesma pergunta ("preciso de uma lista")</td><td class="p-3">São Carlos, Santa Casa, HRN e uma "Clínica de Imagem" genérica</td><td class="p-3 font-bold text-red-500">Não</td></tr>
+                            <tr class="border-b"><td class="p-3 font-medium">Ressonância Sobral CE</td><td class="p-3">Hospital Regional Norte (SUS), São Carlos e rede credenciada da prefeitura</td><td class="p-3 font-bold text-red-500">Não</td></tr>
+                            <tr class="border-b"><td class="p-3 font-medium">Onde fazer ressonância particular (lista)</td><td class="p-3">São Carlos, Santa Casa e centros genéricos. IA avisa que não conseguiu confirmar</td><td class="p-3 font-bold text-red-500">Não</td></tr>
+                            <tr><td class="p-3 font-medium">Onde fazer vacina em Sobral?</td><td class="p-3">Postos do SUS, VIVAT e Vacina do Bem</td><td class="p-3 font-bold text-red-500">Não (MedCenter Vacinas ausente)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <img src="https://i.imgur.com/aSEzsmS.png" alt="Resposta ChatGPT 1" class="rounded-lg shadow border border-gray-200 clickable-img w-full h-48 object-cover" onclick="openLightbox(this.src)">
+                    <img src="https://i.imgur.com/A2xpERW.png" alt="Resposta ChatGPT 2" class="rounded-lg shadow border border-gray-200 clickable-img w-full h-48 object-cover" onclick="openLightbox(this.src)">
+                    <img src="https://i.imgur.com/wwdiGR2.png" alt="Resposta Perplexity" class="rounded-lg shadow border border-gray-200 clickable-img w-full h-48 object-cover" onclick="openLightbox(this.src)">
+                </div>
+                <p class="text-sm text-center text-gray-500 italic">Respostas do ChatGPT e do Perplexity</p>
+            </div>
+
+            <!-- Plano de correção -->
+            <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200 shadow-sm reveal">
+                <h4 class="text-2xl font-bold text-primary mb-6">Plano de correção</h4>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h5 class="font-bold text-v4red uppercase tracking-wider text-sm mb-2">Antes de tudo: a MedCenter define</h5>
+                        <ul class="list-disc list-inside text-gray-700 text-sm space-y-1 ml-2">
+                            <li>Endereço oficial de cada Unidade, conferido com o CNPJ.</li>
+                            <li>WhatsApp oficial de cada Unidade e de Odonto e Vacinas.</li>
+                            <li>Horários de cada Unidade, com sábado.</li>
+                            <li>Serviços feitos em cada Unidade.</li>
+                            <li>Prazo de laudo por exame, rotina e urgência.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-4 rounded border-l-4 border-tertiary shadow-sm">
+                            <h5 class="font-bold text-primary mb-2">Dias 1 e 2 (custo zero)</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Um destino de link da bio por perfil.</li>
+                                <li>- Nomes das fichas no padrão "MedCenter [Cidade]".</li>
+                                <li>- Categoria "Centro de diagnóstico médico por imagem" nas Unidades que fazem imagem.</li>
+                                <li>- Site vinculado nas fichas de Forquilha e Martinópole.</li>
+                                <li>- Telefone na ficha de Martinópole.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border-l-4 border-tertiary shadow-sm">
+                            <h5 class="font-bold text-primary mb-2">Semana 2</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Endereço, telefone e horário iguais no Google, Instagram, site e Doctoralia.</li>
+                                <li>- Tabela única de prazos de laudo, igual em todo site (texto).</li>
+                                <li>- Corrigir endereço/prazo nos diretórios de terceiros (IA usa).</li>
+                                <li>- Descrições das 7 fichas e bios no modelo.</li>
+                                <li>- Tirar números antigos de canais e links.</li>
+                                <li>- E-mail no domínio do site.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border-l-4 border-tertiary shadow-sm">
+                            <h5 class="font-bold text-primary mb-2">Semanas 3 e 4</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Página por Unidade no site.</li>
+                                <li>- Página de Vacinas e Ressonância respondendo perguntas comuns.</li>
+                                <li>- Marcação de dados estruturados (LocalBusiness).</li>
+                                <li>- Redirecionamento ou canônica de medcenter.com.br.</li>
+                                <li>- Repetir as 6 perguntas nas IAs em 30 dias.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-4">
+                        <div class="bg-blue-50 p-4 rounded text-sm italic text-gray-800">
+                            <strong>Descrição-modelo · ficha de Unidade:</strong> A MedCenter [Cidade] faz parte da rede MedCenter, com Matriz em Sobral. Aqui você encontra [serviços feitos na Unidade]. Os exames que não são feitos nesta Unidade são agendados na Matriz, em Sobral, pelo mesmo WhatsApp. Atendimento particular, sem precisar de plano de saúde. Endereço: [endereço oficial]. WhatsApp: [número oficial]. Central: 0800 000 3309.
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded text-sm italic text-gray-800">
+                            <strong>Descrição-modelo · ficha da Matriz:</strong> A MedCenter Clínica & Imagem é a Matriz da rede MedCenter, em Sobral. Reúne exames de imagem, laboratório, consultas, odontologia e vacinas num só lugar. Atendimento particular, sem precisar de plano de saúde. A rede também atende nas Unidades de Granja, Massapê, Forquilha e Martinópole. Endereço: [endereço oficial]. Central: 0800 000 3309.
+                        </div>
+                        <div class="bg-green-50 p-4 rounded text-sm text-gray-800">
+                            <strong>Mensagem pronta · troca de número (Martinópole):</strong> Pacientes de Martinópole: o WhatsApp oficial da MedCenter Martinópole agora é [número]. Salve na sua agenda para marcar exames e consultas. O atendimento continua o mesmo, ligado à nossa Matriz em Sobral.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 04 e 05: Orgânico e Site -->
+    <section class="section-padding bg-gray-50">
+        <div class="container-inner grid lg:grid-cols-2 gap-12">
+            <!-- Orgânico -->
+            <div class="reveal">
+                <h2 class="text-3xl font-extrabold text-primary mb-6">Diagnóstico orgânico (redes sociais)</h2>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">2. Visão geral dos perfis</h3>
+                <p class="text-gray-700 mb-6">
+                    A MedCenter mantém 7 perfis no Instagram: a Matriz, 4 Unidades, Odonto e Vacinas. Os 5 perfis publicam as mesmas peças nas mesmas datas, e cada um leva para um link diferente. Para o Google e para o paciente, parecem 7 marcas e não uma rede.
+                </p>
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                    <h4 class="font-bold text-tertiary mb-2">Bio nova (Matriz)</h4>
+                    <p class="text-sm font-mono bg-gray-100 p-3 rounded">
+                        Exames de imagem, laboratório, consultas, odonto e vacinas num só lugar<br>
+                        Laudo do raio-X em até 1h · ressonância em até 3h<br>
+                        Matriz em Sobral + Unidades em Granja, Massapê, Forquilha e Martinópole<br>
+                        Agende pelo WhatsApp 👇
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Perfis das Unidades: usar a bio-modelo do bloco CIM, com o nome no padrão "MedCenter [Cidade]" e a citação da Matriz.</p>
+                </div>
+            </div>
+
+            <!-- Site/LP -->
+            <div class="reveal">
+                <h2 class="text-3xl font-extrabold text-primary mb-6">Diagnóstico do site / LP</h2>
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-green-600 mb-3 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        2. Pontos positivos
+                    </h3>
+                    <ul class="text-gray-700 text-sm space-y-2">
+                        <li>- <strong>Página de ressonância completa:</strong> traz os tipos de exame, o equipamento (GE SIGNA Prime 1.5T) e as contraindicações. É a base certa para página de destino de anúncio.</li>
+                        <li>- <strong>Unidades na home</strong> com endereço, horário e WhatsApp de cada uma. WhatsApp com mensagem pronta, o que facilita o primeiro contato.</li>
+                        <li>- <strong>Página de vacinas</strong> com 19 vacinas e serviço domiciliar, que conversa com a Rita e com a ociosidade de vacinas apontada na 1S.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-red-500 mb-3 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        3. Pontos de melhoria
+                    </h3>
+                    <ul class="text-gray-700 text-sm space-y-4">
+                        <li class="bg-red-50 p-3 rounded">
+                            2. Quatro WhatsApps disputando o clique. O principal é o (88) 99493-3942. Os 12 links de exames do rodapé vão para o (88) 99253-1740. Martinópole mostra um número e linka outro.<br>
+                            <span class="font-bold text-primary">Sugestão:</span> um WhatsApp por Unidade, definido pelo cliente, com clique rastreado.
+                        </li>
+                        <li class="bg-red-50 p-3 rounded">
+                            4. Sem rastreamento. Só existe a tag do Google Ads. Não há GTM, GA4 nem Pixel, e o clique no WhatsApp não é medido.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagnóstico de maturidade digital -->
+    <section class="section-padding bg-primary text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==')] opacity-30"></div>
+        <div class="container-inner">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-10 text-center reveal">Diagnóstico de maturidade digital</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal">
+                <!-- Cards de Maturidade -->
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">Mídia paga</h3>
+                        <span class="bg-yellow-500 text-gray-900 font-black px-3 py-1 rounded-full">5/10</span>
+                    </div>
+                    <p class="text-sm text-gray-200">Investimento constante, CTR de 9,4% e conversa a R$ 5,83. Mas 1 criativo por conjunto, sem remarketing e com correspondência ampla</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">Criativos e conteúdo</h3>
+                        <span class="bg-orange-500 text-white font-black px-3 py-1 rounded-full">4/10</span>
+                    </div>
+                    <p class="text-sm text-gray-200">Os vídeos campeões funcionam, mas estão no ar há 225 dias, sem o prazo do laudo, e os perfis repetem as mesmas peças</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">Conversão (site/LP)</h3>
+                        <span class="bg-red-500 text-white font-black px-3 py-1 rounded-full">3/10</span>
+                    </div>
+                    <p class="text-sm text-gray-200">As páginas de exame existem, mas os anúncios não usam. São 4 WhatsApps, 3 versões do prazo e o portal de resultados sem HTTPS</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">Mensuração</h3>
+                        <span class="bg-red-700 text-white font-black px-3 py-1 rounded-full">1/10</span>
+                    </div>
+                    <p class="text-sm text-gray-200">Só a tag do Google Ads, só a ligação conta como conversão</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">CRM e atendimento</h3>
+                        <span class="bg-gray-500 text-white font-black px-3 py-1 rounded-full">N/A</span>
+                    </div>
+                    <p class="text-sm text-gray-200">Não verificado</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20 hover:-translate-y-2 transition-transform">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xl">Presença local e SEO</h3>
+                        <span class="bg-orange-500 text-white font-black px-3 py-1 rounded-full">4/10</span>
+                    </div>
+                    <p class="text-sm text-gray-200">Nota 4,8 com cerca de 2 mil avaliações. Mas o endereço e o horário têm várias versões, as categorias estão erradas e a IA não cita a MedCenter em ressonância nem em vacinas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 06: Roadmap -->
+    <section class="section-padding bg-white text-center">
+        <div class="container-inner reveal">
+            <h2 class="text-3xl font-bold text-primary mb-8">Roadmap</h2>
+            <img src="https://i.imgur.com/WzEf6kb.png" alt="Roadmap" class="mx-auto rounded-xl shadow-lg border border-gray-200 clickable-img w-full max-w-4xl" onclick="openLightbox(this.src)">
+        </div>
+    </section>
+
+    <!-- Sessão 13: O que aconteceu essa semana -->
+    <section class="section-padding bg-gray-50 border-t border-gray-200">
+        <div class="container-inner max-w-4xl text-center reveal">
+            <h2 class="text-sm font-bold tracking-widest text-gray-500 uppercase mb-4">O que aconteceu essa semana</h2>
+            <p class="text-xl md:text-2xl font-light text-primary mb-10 line-clamp-3 hover:line-clamp-none transition-all cursor-pointer" title="Clique para expandir">
+                "Entendemos de forma mais aprofundada como está o seu marketing e da sua concorrência."
+            </p>
+            
+            <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-tertiary text-left inline-block w-full max-w-2xl">
+                <h3 class="text-xl font-bold text-primary mb-6 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    PRÓXIMOS PASSOS
+                </h3>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</div> Cliente oculto (avaliação do atendimento).</li>
+                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</div> Diagnóstico comercial e etapas do funil.</li>
+                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</div> Definição de métricas e critérios do funil.</li>
+                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</div> Pipeline comercial + réguas + script consultivo.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-v4red text-white py-10 text-center relative z-20">
+        <div class="container-inner flex flex-col items-center justify-center space-y-4">
+            <p class="font-light tracking-wide text-sm opacity-90">Produzido por:</p>
+            <img src="https://i.imgur.com/SU08Zb0.png" alt="V4 Company Logo" class="h-10 hover:scale-110 transition-transform duration-300">
+            <div class="w-full max-w-md h-px bg-white/20 mt-6"></div>
+            <p class="text-xs opacity-70 mt-4">&copy; 2026 V4 Silva Anchieta & Co. Todos os direitos reservados para MedCenter.</p>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/90 items-center justify-center p-4 backdrop-blur-sm" onclick="closeLightbox()">
+        <button class="absolute top-6 right-6 text-white hover:text-gray-300 z-[110]" onclick="closeLightbox()">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <img id="lightbox-img" src="" alt="Ampliada" class="max-w-full max-h-full object-contain rounded shadow-2xl scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Progress Bar on Scroll
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height);
+            document.getElementById('progress-bar').style.transform = `scaleX(${scrolled})`;
+            
+            // Header Glassmorphism existing logic
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Tab Switching Logic
+        function switchTab(evt, tabId, groupClass) {
+            // Get all elements with class="tab-pane" inside the specific group and hide them
+            const tabPanes = document.getElementsByClassName(groupClass);
+            for (let i = 0; i < tabPanes.length; i++) {
+                tabPanes[i].classList.remove('active');
+            }
+
+            // Get all buttons inside the parent of the clicked button and remove the class "active"
+            const tabContainer = evt.currentTarget.parentElement;
+            const tablinks = tabContainer.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove('active');
+                tablinks[i].classList.add('text-gray-500');
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            evt.currentTarget.classList.remove('text-gray-500');
+        }
+
+        // Scroll Reveal Animation (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            });
+        }, revealOptions);
+        revealElements.forEach(el => revealOnScroll.observe(el));
+
+        // Accordion Toggle Logic
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const isClosed = !content.classList.contains('open');
+            
+            // Optional: close other accordions
+            // document.querySelectorAll('.accordion-content').forEach(acc => acc.classList.remove('open'));
+            
+            if (isClosed) {
+                content.classList.add('open');
+                button.classList.add('bg-gray-100');
+            } else {
+                content.classList.remove('open');
+                button.classList.remove('bg-gray-100');
+            }
+        }
+
+        // Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            setTimeout(() => {
+                lightboxImg.classList.remove('scale-95');
+                lightboxImg.classList.add('scale-100');
+            }, 10);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeLightbox() {
+            lightboxImg.classList.remove('scale-100');
+            lightboxImg.classList.add('scale-95');
+            setTimeout(() => {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scrolling
+            }, 300);
+        }
+        
+        // Close lightbox on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        // Simulator Logic
+        function activateSimStep(step) {
+            // Reset all
+            document.querySelectorAll('.sim-step').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('opacity-50', 'grayscale');
+            });
+            document.querySelectorAll('.sim-line').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sim-content-box').forEach(el => el.classList.remove('active'));
+
+            // Activate up to current
+            for(let i=1; i<=step; i++) {
+                let stepEl = document.querySelector(`.sim-step:nth-of-type(${i})`);
+                if(stepEl) {
+                    stepEl.classList.add('active');
+                    stepEl.classList.remove('opacity-50', 'grayscale');
+                }
+                if(i < step) {
+                    let lineEl = document.getElementById(`sim-line-${i}`);
+                    if(lineEl) lineEl.classList.add('active');
+                }
+            }
+
+            // Show content
+            document.getElementById(`sim-content-${step}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
