@@ -1,1 +1,1366 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa & Posicionamento | MedCenter & V4</title>
+    
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons: Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#174078',
+                        secondary: '#FFFFFF',
+                        tertiary: '#6EC1DA',
+                        footer: '#E50914',
+                        scrollbar: '#1B3859',
+                        dark: '#111827',
+                        light: '#F3F4F6'
+                    },
+                    animation: {
+                        'slow-zoom': 'slow-zoom 20s ease-in-out infinite alternate',
+                        'blob': 'blob 7s infinite',
+                        'shine': 'shine 2s infinite',
+                    },
+                    keyframes: {
+                        'slow-zoom': {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.1)' }
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' }
+                        },
+                        shine: {
+                            '100%': { left: '125%' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1B3859;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #174078;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        .glass-dark {
+            background: rgba(23, 64, 120, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Scroll Reveal Utility Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Text Gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #174078 0%, #6EC1DA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Shine Effect for Buttons */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite;
+        }
+
+        /* Custom Tooltip */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #174078;
+            cursor: help;
+        }
+        .tooltip-container .tooltip-text {
+            visibility: hidden;
+            width: max-content;
+            max-width: 250px;
+            background-color: #111827;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            font-weight: 400;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .tooltip-container .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #111827 transparent transparent transparent;
+        }
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Lightbox overlay */
+        #lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox.show {
+            display: flex;
+            opacity: 1;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        #lightbox.show img {
+            transform: scale(1);
+        }
+        .clickable-image {
+            cursor: zoom-in;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .clickable-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Parallax Background */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Animated Flow Lines for Architecture */
+        .flow-arrow {
+            position: relative;
+        }
+        .flow-arrow::after {
+            content: '↓';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #174078;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        @media (min-width: 768px) {
+            .flow-arrow-right::after {
+                content: '→';
+                bottom: auto;
+                top: 50%;
+                right: -30px;
+                left: auto;
+                transform: translateY(-50%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-light text-gray-800 font-sans overflow-x-hidden">
+
+    <!-- Header (Sticky, Glassmorphism on scroll) -->
+    <header id="main-header" class="fixed top-0 w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <!-- Left spacer -->
+            <div class="w-1/3 hidden md:block"></div>
+            
+            <!-- Center Logo (Client) -->
+            <div class="w-full md:w-1/3 flex justify-center">
+                <img src="https://medcenterclinica.com/wp-content/uploads/2024/12/logo_medcenter_white.png" alt="MedCenter Logo" class="h-10 hover:scale-105 transition-transform duration-300" id="header-logo-client">
+            </div>
+            
+            <!-- Right Logo (Agency) -->
+            <div class="w-full md:w-1/3 flex justify-end">
+                <img src="https://i.imgur.com/jmzaox0.png" alt="V4 Company Logo" class="h-8 hover:scale-110 transition-transform duration-300 brightness-0 invert">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sessão 01: Hero / Capa -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden bg-primary">
+        <!-- Blobs / Animated Background -->
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-tertiary rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-2xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-secondary rounded-full mix-blend-overlay filter blur-2xl opacity-20 animate-blob animation-delay-4000"></div>
+        
+        <div class="container mx-auto px-6 relative z-10 text-center text-white mt-16">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight reveal delay-100">Pesquisa de Mercado <br>& <span class="text-transparent bg-clip-text bg-gradient-to-r from-tertiary to-white">Posicionamento</span></h1>
+            
+            <div class="mt-12 reveal delay-300">
+                <a href="#sumario" class="inline-flex items-center gap-2 bg-white text-primary px-8 py-4 rounded-full font-bold hover:-translate-y-1 hover:shadow-xl transition-all btn-shine">
+                    Iniciar Apresentação <i class="ph ph-arrow-down weight-bold"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 02: Sumário -->
+    <section id="sumario" class="py-24 bg-white relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 02</h2>
+                <h3 class="text-4xl font-extrabold text-primary text-gradient inline-block">SUMÁRIO</h3>
+                <p class="mt-4 text-gray-500 flex items-center justify-center gap-2 font-medium">
+                    <i class="ph ph-clock text-xl text-primary"></i> Duração Estimada: 1h30min
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Pesquisa de Mercado Card -->
+                <div class="bg-light p-8 rounded-2xl border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 reveal delay-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center text-2xl shadow-lg">
+                            <i class="ph ph-magnifying-glass"></i>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-800">Pesquisa de Mercado</h4>
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-tertiary mt-1 text-lg"></i> Estudo dos seus concorrentes
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-tertiary mt-1 text-lg"></i> Mercados atuais e potenciais
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-tertiary mt-1 text-lg"></i> Público alvo mais assertivo
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Posicionamento Card -->
+                <div class="bg-light p-8 rounded-2xl border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 reveal delay-200 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/10 rounded-bl-full -z-10 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-tertiary text-white flex items-center justify-center text-2xl shadow-lg">
+                            <i class="ph ph-target"></i>
+                        </div>
+                        <h4 class="text-2xl font-bold text-gray-800">Posicionamento</h4>
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-primary mt-1 text-lg"></i> Comparação do produto no mercado
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-primary mt-1 text-lg"></i> Seus diferenciais competitivos
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600 font-medium">
+                            <i class="ph-fill ph-check-circle text-primary mt-1 text-lg"></i> Sua PUV (Proposta Única de Valor)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 03: Seu Mercado -->
+    <section class="py-24 bg-gray-50 border-y border-gray-200 overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 03</h2>
+                <h3 class="text-4xl font-extrabold text-primary mb-8">Seu mercado</h3>
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-stretch gap-12 max-w-7xl mx-auto">
+                <!-- Lado Esquerdo: Imagem -->
+                <div class="w-full lg:w-1/2 reveal delay-100 rounded-2xl overflow-hidden shadow-2xl relative flex">
+                    <img src="https://medcenterclinica.com/wp-content/uploads/2025/02/bg-medical.png" alt="Contexto Médico" class="w-full h-full object-cover clickable-image">
+                </div>
+
+                <!-- Lado Direito: Textos e Badges -->
+                <div class="w-full lg:w-1/2 flex flex-col justify-center">
+                    <h4 class="text-2xl font-bold text-left text-gray-800 mb-8 reveal">Solução completa abrangendo os submercados:</h4>
+                    
+                    <!-- Submarkets Icons Grid -->
+                    <div class="flex flex-wrap justify-start gap-3 mb-10 reveal delay-100">
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-heartbeat text-lg"></i> Diagnóstico por Imagem
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-microscope text-lg"></i> Análises Clínicas
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-stethoscope text-lg"></i> Consultas Médicas Especializadas
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-briefcase text-lg"></i> Medicina do Trabalho
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-syringe text-lg"></i> Vacinação
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-tooth text-lg"></i> Odontologia Integrada
+                        </span>
+                        <span class="px-5 py-2.5 bg-white shadow-sm border border-gray-100 rounded-full font-semibold text-primary hover:bg-primary hover:text-white transition-colors cursor-default flex items-center gap-2 text-sm">
+                            <i class="ph ph-sparkle text-lg"></i> Estética
+                        </span>
+                    </div>
+
+                    <!-- Highlight Factor -->
+                    <div class="bg-primary text-white rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden reveal delay-200">
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                        <span class="text-tertiary font-bold tracking-widest uppercase text-sm mb-3 block">Fator</span>
+                        <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight">
+                            <span class="text-tertiary text-5xl">97</span> em cada 100 moradores da região <span class="border-b-4 border-footer pb-1">não têm plano de saúde</span> (ANS)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 04: Tamanho de Mercado (TAM SAM SOM Graphic) -->
+    <section class="min-h-screen lg:h-screen flex items-center justify-center bg-white py-12 lg:py-4 overflow-hidden">
+        <div class="container mx-auto px-6 flex flex-col justify-center h-full max-h-screen">
+            <div class="text-center mb-6 reveal shrink-0">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-1">Sessão 04</h2>
+                <h3 class="text-3xl lg:text-4xl font-extrabold text-primary">Definição do Tamanho de Mercado</h3>
+            </div>
+
+            <!-- Intro text -->
+            <div class="max-w-3xl mx-auto text-center mb-8 reveal delay-100 shrink-0">
+                <h4 class="text-xl lg:text-2xl font-bold text-gray-800 mb-2">O que está em jogo</h4>
+                <p class="text-lg lg:text-xl text-gray-600 leading-snug">
+                    O seu mercado movimenta <strong class="text-primary">R$ 409 mi por ano</strong>.<br>
+                    Desse total, R$ 219 mi por ano passa pelo canal em que você vende, e R$ 10,3 mi está ao seu alcance.
+                </p>
+            </div>
+
+            <!-- Infographic and Text layout -->
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 max-w-6xl mx-auto flex-1 min-h-0">
+                
+                <!-- Left: Visual CSS Representation -->
+                <div class="w-full lg:w-1/2 flex justify-center reveal shrink-0 scale-90 lg:scale-100 origin-center">
+                    <div class="relative w-64 h-64 lg:w-80 lg:h-80 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shadow-inner group transition-all duration-500 hover:shadow-blue-200/50">
+                        <div class="absolute top-4 text-primary font-bold text-base opacity-70 group-hover:opacity-100 transition-opacity">TAM</div>
+                        
+                        <div class="relative w-48 h-48 lg:w-60 lg:h-60 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center shadow-md transition-all duration-500 group-hover:bg-blue-200">
+                            <div class="absolute top-3 text-primary font-bold opacity-80 group-hover:opacity-100 transition-opacity text-sm">SAM</div>
+                            
+                            <div class="relative w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-primary flex items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300 cursor-pointer">
+                                <span class="text-white font-black text-xl lg:text-2xl tracking-wider">SOM</span>
+                                <div class="absolute -bottom-8 bg-dark text-white text-[10px] px-2 py-1 rounded opacity-0 transition-opacity whitespace-nowrap">Seu Alvo Principal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Detailed Definitions -->
+                <div class="w-full lg:w-1/2 space-y-3 lg:space-y-4 overflow-y-auto custom-scrollbar pr-2 pb-2" style="max-height: 60vh;">
+                    <!-- TAM -->
+                    <div class="bg-light p-4 lg:p-5 rounded-2xl border-l-4 border-blue-200 hover:shadow-md transition-shadow reveal delay-100">
+                        <h5 class="text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <span class="bg-blue-100 text-primary px-2 py-0.5 rounded text-xs">TAM</span> 
+                            Mercado total <span class="text-tertiary">R$ 205 a 409 mi/ano</span>
+                        </h5>
+                        <p class="text-xs font-semibold text-gray-500 mt-1 mb-2">saúde privada na Zona Norte do Ceará (44 municípios)</p>
+                        <p class="text-gray-600 text-xs lg:text-sm leading-relaxed">
+                            Tudo o que se gasta do próprio bolso em consultas, exames de imagem, laboratório, vacinas e odontologia na região intermediária de Sobral. Visto em IBGE e ANS.
+                        </p>
+                    </div>
+
+                    <!-- SAM -->
+                    <div class="bg-blue-50 p-4 lg:p-5 rounded-2xl border-l-4 border-blue-400 hover:shadow-md transition-shadow reveal delay-200">
+                        <h5 class="text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <span class="bg-blue-200 text-primary px-2 py-0.5 rounded text-xs">SAM</span> 
+                            Mercado atende <span class="text-primary">R$ 110 a 219 mi/ano</span>
+                        </h5>
+                        <p class="text-xs font-semibold text-gray-500 mt-1 mb-2">regiões de Sobral</p>
+                        <p class="text-gray-700 text-xs lg:text-sm leading-relaxed">
+                            A parte que passa pelo raio de alcance direto e pelas 5 unidades físicas da MedCenter (Sobral, Massapê, Forquilha, Martinópole e Granja).<br>
+                            Estimado: ~53,6% do TAM — abrange 27 municípios (731.594 hab). Visto em IBGE.
+                        </p>
+                    </div>
+
+                    <!-- SOM -->
+                    <div class="glass-dark text-white p-4 lg:p-5 rounded-2xl border-l-4 border-tertiary hover:shadow-lg hover:-translate-y-0.5 transition-all reveal delay-300">
+                        <h5 class="text-lg lg:text-xl font-bold flex items-center gap-2">
+                            <span class="bg-tertiary text-primary px-2 py-0.5 rounded text-xs">SOM</span> 
+                            Mercado a conquistar <span class="text-tertiary">R$ 16,6 mi/ano</span>
+                        </h5>
+                        <p class="text-xs font-medium text-blue-200 mt-1 mb-2">clínica regional multisserviço</p>
+                        <p class="text-blue-50 text-xs lg:text-sm leading-relaxed">
+                            O que é realista conquistar nos próximos 12 meses sem aumentar a verba de mídia. Estimado: 7,5% do SAM.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 05: Análise Digital (Table) -->
+    <section class="py-24 bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 05</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-primary">Análise de presença digital dos concorrentes</h3>
+                <p class="text-gray-500 mt-4 max-w-2xl mx-auto">Deslize a tabela para os lados em telas menores para visualizar todos os dados comparativos.</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden reveal delay-100 border border-gray-100">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-primary text-white text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold sticky left-0 bg-primary z-10 shadow-[2px_0_5px_rgba(0,0,0,0.1)]">Concorrente</th>
+                                <th class="p-4 font-semibold text-center">Site - Acessos (mês)</th>
+                                <th class="p-4 font-semibold text-center">Insta - Seguidores</th>
+                                <th class="p-4 font-semibold text-center">GMN Avaliações</th>
+                                <th class="p-4 font-semibold text-center">GMN Nota</th>
+                                <th class="p-4 font-semibold text-center">Google Ads</th>
+                                <th class="p-4 font-semibold text-center">Meta Ads</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
+                            <!-- MedCenter Entities Highlighted -->
+                            <tr class="bg-blue-50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-bold text-primary sticky left-0 bg-blue-50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-primary">MedCenter Sobral</td>
+                                <td class="p-4 text-center">4.600</td>
+                                <td class="p-4 text-center">36.300</td>
+                                <td class="p-4 text-center font-semibold">1.996</td>
+                                <td class="p-4 text-center text-green-600 font-bold">4,8</td>
+                                <td class="p-4 text-center">32</td>
+                                <td class="p-4 text-center">23</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">MedCenter Granja</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">7.100</td>
+                                <td class="p-4 text-center">2</td>
+                                <td class="p-4 text-center text-yellow-600">3</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">8</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">MedCenter Massapê</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">4.800</td>
+                                <td class="p-4 text-center">5</td>
+                                <td class="p-4 text-center">4,2</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">7</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">Medcenter Forquilha</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">1.557</td>
+                                <td class="p-4 text-center">2</td>
+                                <td class="p-4 text-center text-green-600">5</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">5</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">MedCenter Martinópole</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">1.402</td>
+                                <td class="p-4 text-center">1</td>
+                                <td class="p-4 text-center text-green-600">5</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">3</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">MedCenter Odonto care</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">267</td>
+                                <td class="p-4 text-center">29</td>
+                                <td class="p-4 text-center text-green-600">5</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            <tr class="bg-blue-50/50 hover:bg-blue-100 transition-colors">
+                                <td class="p-4 font-semibold text-primary sticky left-0 bg-blue-50/50 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary">MedCenter Vacinas</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">1.431</td>
+                                <td class="p-4 text-center">13</td>
+                                <td class="p-4 text-center text-green-600">5</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            
+                            <!-- Competitors -->
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 font-medium text-gray-800 sticky left-0 bg-white group-hover:bg-gray-50 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Clinica Boghos sobral</td>
+                                <td class="p-4 text-center">12.100</td>
+                                <td class="p-4 text-center">12.400</td>
+                                <td class="p-4 text-center">66</td>
+                                <td class="p-4 text-center text-red-500">3,3</td>
+                                <td class="p-4 text-center">0</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 font-medium text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_rgba(0,0,0,0.05)]">São Carlos Imagem Sobral</td>
+                                <td class="p-4 text-center">2.300</td>
+                                <td class="p-4 text-center">14.600</td>
+                                <td class="p-4 text-center">382</td>
+                                <td class="p-4 text-center">4,7</td>
+                                <td class="p-4 text-center">0</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 font-medium text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Clinica Michel Palheta</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center font-bold text-gray-900">88.500</td>
+                                <td class="p-4 text-center">500</td>
+                                <td class="p-4 text-center text-green-600">5</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 font-medium text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Clínica Medscan</td>
+                                <td class="p-4 text-center">7.800</td>
+                                <td class="p-4 text-center">15.300</td>
+                                <td class="p-4 text-center">591</td>
+                                <td class="p-4 text-center">4,7</td>
+                                <td class="p-4 text-center">35</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-4 font-medium text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_rgba(0,0,0,0.05)]">São Lucas Imagem</td>
+                                <td class="p-4 text-center">4.300</td>
+                                <td class="p-4 text-center">4.998</td>
+                                <td class="p-4 text-center">45</td>
+                                <td class="p-4 text-center">4,6</td>
+                                <td class="p-4 text-center">0</td>
+                                <td class="p-4 text-center">0</td>
+                            </tr>
+                            
+                            <!-- Benchmarks -->
+                            <tr class="bg-gray-100 hover:bg-gray-200 transition-colors border-t-2 border-gray-300">
+                                <td class="p-4 font-medium text-gray-600 sticky left-0 bg-gray-100 shadow-[2px_0_5px_rgba(0,0,0,0.05)] italic">Dr Consulta (Ref)</td>
+                                <td class="p-4 text-center text-xs">1.500.000</td>
+                                <td class="p-4 text-center text-xs">116000</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center font-bold text-gray-800">900</td>
+                                <td class="p-4 text-center font-bold text-gray-800">30</td>
+                            </tr>
+                            <tr class="bg-gray-100 hover:bg-gray-200 transition-colors">
+                                <td class="p-4 font-medium text-gray-600 sticky left-0 bg-gray-100 shadow-[2px_0_5px_rgba(0,0,0,0.05)] italic">Fleury (Ref)</td>
+                                <td class="p-4 text-center text-xs">552.000</td>
+                                <td class="p-4 text-center text-xs">95.700</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center">200</td>
+                                <td class="p-4 text-center">3</td>
+                            </tr>
+                            <tr class="bg-gray-100 hover:bg-gray-200 transition-colors">
+                                <td class="p-4 font-medium text-gray-600 sticky left-0 bg-gray-100 shadow-[2px_0_5px_rgba(0,0,0,0.05)] italic">Dasa (Ref)</td>
+                                <td class="p-4 text-center text-xs font-bold">7.900.000</td>
+                                <td class="p-4 text-center text-xs">188.000</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center text-gray-400">-</td>
+                                <td class="p-4 text-center font-bold text-gray-800 text-xs">3000</td>
+                                <td class="p-4 text-center">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 06: Comparação Mercado (Cards) -->
+    <section class="py-24 bg-white relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 06</h2>
+                <h3 class="text-4xl font-extrabold text-primary">Comparação com o Mercado</h3>
+            </div>
+
+            <!-- CSS Grid instead of standard table for better mobile UX reading long texts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                
+                <!-- Medscan -->
+                <div class="bg-light p-6 rounded-2xl border border-gray-200 hover:-translate-y-2 hover:shadow-xl transition-all reveal delay-100 flex flex-col h-full">
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h4 class="text-xl font-bold text-primary">Clínica Medscan</h4>
+                    </div>
+                    <div class="space-y-4 flex-grow">
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Principais Diferenciais</span>
+                        <p class="text-sm text-gray-800">Ressonância 1.5T com IA e radiologistas subespecialistas.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-footer uppercase tracking-wider block mb-1 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Vulnerabilidade a Explorar</span>
+                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">Não possui consultas, exames laboratoriais, odonto ou vacinas; perde o paciente assim que o laudo é emitido.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-tertiary uppercase tracking-wider block mb-1">PUV</span>
+                        <p class="text-sm font-medium italic text-gray-700">"Tecnologia de ponta e precisão diagnóstica em imagem avançada"</p></div>
+                        
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Jornada do Paciente</span>
+                        <p class="text-sm text-gray-600">Busca no Google para exames de alto padrão e indicação médica.</p></div>
+                    </div>
+                </div>
+
+                <!-- São Carlos -->
+                <div class="bg-light p-6 rounded-2xl border border-gray-200 hover:-translate-y-2 hover:shadow-xl transition-all reveal delay-200 flex flex-col h-full">
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h4 class="text-xl font-bold text-primary">São Carlos Imagem</h4>
+                    </div>
+                    <div class="space-y-4 flex-grow">
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Principais Diferenciais</span>
+                        <p class="text-sm text-gray-800">Marca com 20 anos de mercado e convênios privados consolidados.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-footer uppercase tracking-wider block mb-1 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Vulnerabilidade a Explorar</span>
+                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">Desconexão com a realidade regional onde 97% da população local não tem plano de saúde</p></div>
+                        
+                        <div><span class="text-xs font-bold text-tertiary uppercase tracking-wider block mb-1">PUV</span>
+                        <p class="text-sm font-medium italic text-gray-700">"Tradição da capital com cobertura dos principais planos de saúde"</p></div>
+                        
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Jornada do Paciente</span>
+                        <p class="text-sm text-gray-600">Foco em usuários de planos (Unimed), tráfego institucional e conteúdo de autoridade ("Médico Responde").</p></div>
+                    </div>
+                </div>
+
+                <!-- Michel Palheta -->
+                <div class="bg-light p-6 rounded-2xl border border-gray-200 hover:-translate-y-2 hover:shadow-xl transition-all reveal delay-300 flex flex-col h-full">
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h4 class="text-xl font-bold text-primary">Clínica Michel Palheta</h4>
+                    </div>
+                    <div class="space-y-4 flex-grow">
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Principais Diferenciais</span>
+                        <p class="text-sm text-gray-800">Grande apelo emocional com gestantes e alta autoridade do proprietário.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-footer uppercase tracking-wider block mb-1 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Vulnerabilidade a Explorar</span>
+                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">Portfólio restrito a ultrassom e consultas específicas; não possui infraestrutura de alta complexidade (RM/TC) nem escala de rede.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-tertiary uppercase tracking-wider block mb-1">PUV</span>
+                        <p class="text-sm font-medium italic text-gray-700">"Acolhimento afetivo e conexão emocional materno-infantil"</p></div>
+                        
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Jornada do Paciente</span>
+                        <p class="text-sm text-gray-600">Fortíssima atração orgânica via Instagram baseada na marca pessoal do médico</p></div>
+                    </div>
+                </div>
+
+                <!-- Boghos -->
+                <div class="bg-light p-6 rounded-2xl border border-gray-200 hover:-translate-y-2 hover:shadow-xl transition-all reveal delay-100 flex flex-col h-full">
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h4 class="text-xl font-bold text-primary">Clínica Boghos Boyadjian</h4>
+                    </div>
+                    <div class="space-y-4 flex-grow">
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Principais Diferenciais</span>
+                        <p class="text-sm text-gray-800">Ambiente preparado para pacientes ansiosos e histórico tradicional de radiologia.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-footer uppercase tracking-wider block mb-1 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Vulnerabilidade a Explorar</span>
+                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">Reputação pública deteriorada com Nota 3,3 no Google (66 avaliações)</p></div>
+                        
+                        <div><span class="text-xs font-bold text-tertiary uppercase tracking-wider block mb-1">PUV</span>
+                        <p class="text-sm font-medium italic text-gray-700">"Diagnóstico humanizado com foco no conforto e controle da dor"</p></div>
+                        
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Jornada do Paciente</span>
+                        <p class="text-sm text-gray-600">Captação passiva por indicação médica e conteúdo educativo voltado a tranquilizar pacientes com fobia/dor.</p></div>
+                    </div>
+                </div>
+
+                <!-- São Lucas -->
+                <div class="bg-light p-6 rounded-2xl border border-gray-200 hover:-translate-y-2 hover:shadow-xl transition-all reveal delay-200 flex flex-col h-full">
+                    <div class="border-b border-gray-200 pb-4 mb-4">
+                        <h4 class="text-xl font-bold text-primary">São Lucas Imagem</h4>
+                    </div>
+                    <div class="space-y-4 flex-grow">
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Principais Diferenciais</span>
+                        <p class="text-sm text-gray-800">Preços baixos em exames básicos de imagem convencional.</p></div>
+                        
+                        <div><span class="text-xs font-bold text-footer uppercase tracking-wider block mb-1 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> Vulnerabilidade a Explorar</span>
+                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">Invisibilidade de mercado com penas 45 avaliações no Google, sem diferenciais claros</p></div>
+                        
+                        <div><span class="text-xs font-bold text-tertiary uppercase tracking-wider block mb-1">PUV</span>
+                        <p class="text-sm font-medium italic text-gray-700">"Serviços convencionais de radiologia e imagem ambulatorial"</p></div>
+                        
+                        <div><span class="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Jornada do Paciente</span>
+                        <p class="text-sm text-gray-600">Depende de encaminhamentos do SUS, convênios locais e prescrições médicas de balcão.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 07: Personas -->
+    <section class="py-24 bg-primary text-white parallax-bg" style="background-image: linear-gradient(rgba(23, 64, 120, 0.95), rgba(23, 64, 120, 0.95)), url('https://www.transparenttextures.com/patterns/black-scales.png');">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 07</h2>
+                <h3 class="text-4xl font-extrabold text-white">Persona’s</h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                
+                <!-- Persona 1: Rita -->
+                <div class="glass-dark p-8 rounded-3xl reveal delay-100 hover:shadow-2xl transition-all relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full"></div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full bg-tertiary flex items-center justify-center text-3xl shadow-inner">
+                            <i class="ph-fill ph-user-focus text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-2xl font-bold">Persona 1</h4>
+                            <p class="text-lg font-medium text-tertiary italic">Rita, "a que marca para a família inteira"</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-blue-100 mb-6 leading-relaxed">
+                        46 anos, professora da rede municipal em Massapê, casada, dois filhos, cuida da mãe idosa. A mamografia anual está atrasada e o pedido de ultrassom da mãe está na bolsa há um mês. Ela manda WhatsApp para a MedCenter Massapê; se o exame é em Sobral, combina com a viagem do marido. Pesa para ela: preço, uma data que caiba na rotina e o resultado no mesmo dia para levar ao médico.
+                    </p>
+                    
+                    <div class="bg-black/20 p-4 rounded-xl border border-white/10 mb-6">
+                        <p class="text-sm text-white flex items-start gap-2">
+                            <i class="ph-fill ph-warning text-yellow-400 mt-1"></i>
+                            Tem medo de descobrir algo grave e de gastar e precisar repetir o exame.
+                        </p>
+                    </div>
+
+                    <blockquote class="border-l-4 border-tertiary pl-4 text-lg font-light italic mb-6">
+                        "Se alguém me lembrasse da mamografia e já marcasse junto com o exame da minha mãe, eu fazia as duas no mesmo dia."
+                    </blockquote>
+
+                    <div class="bg-tertiary/20 p-4 rounded-xl border border-tertiary/30">
+                        <p class="text-sm font-bold text-tertiary mb-1">O que ajuda a Rita:</p>
+                        <p class="text-sm text-blue-50">Lembrete na época certa (com a autorização dela), agenda casada para os dois exames e laudo no mesmo dia.</p>
+                    </div>
+                </div>
+
+                <!-- Persona 2: Seu Antônio -->
+                <div class="glass-dark p-8 rounded-3xl reveal delay-200 hover:shadow-2xl transition-all relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full"></div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full bg-blue-400 flex items-center justify-center text-3xl shadow-inner">
+                            <i class="ph-fill ph-user text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-2xl font-bold">Persona 2</h4>
+                            <p class="text-lg font-medium text-blue-300 italic">Seu Antônio, "o pedido de ressonância"</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-blue-100 mb-6 leading-relaxed">
+                        58 anos, pequeno comerciante em Granja, a 1h30 de Sobral, sem plano. O ortopedista pediu ressonância de coluna; no SUS a espera é longa. A filha pede o preço pelo WhatsApp a três clínicas de Sobral e a família decide junta. Pesa para ele: preço, data próxima, não perder a viagem e receber o laudo antes de voltar.
+                    </p>
+
+                    <blockquote class="border-l-4 border-blue-400 pl-4 text-lg font-light italic mb-6 mt-16">
+                        "Mandei mensagem pedindo o preço e ninguém me procurou mais. Fui onde me responderam de novo."
+                    </blockquote>
+
+                    <div class="bg-blue-400/20 p-4 rounded-xl border border-blue-400/30">
+                        <p class="text-sm font-bold text-blue-300 mb-1">O que ajuda o Seu Antônio:</p>
+                        <p class="text-sm text-blue-50">Um retorno da clínica com a data, o preparo do exame e a forma de pagamento por escrito</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 08: Case de Sucesso -->
+    <section class="py-24 bg-light">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 08</h2>
+                <h3 class="text-4xl font-extrabold text-primary">Case de sucesso de inspiração</h3>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                <p class="text-lg text-gray-700 leading-relaxed text-center mb-12 reveal delay-100">
+                    O case do <strong>dr.consulta</strong> tornou-se a principal referência de Growth e CRM no setor de saúde ao resolver o maior gargalo das redes de clínicas: atendimento humano em responder cotações e a incapacidade do call center de ofertar novos serviços no momento certo.
+                </p>
+
+                <!-- Impact Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 reveal delay-200">
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-green-500 text-center">
+                        <p class="text-5xl font-black text-green-500 mb-2">+60%</p>
+                        <p class="font-bold text-gray-800 uppercase text-sm tracking-wide">de conversão</p>
+                        <p class="text-sm text-gray-500 mt-2">Aumento direto na taxa de fechamento de agendamentos pelo WhatsApp.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-tertiary text-center">
+                        <p class="text-5xl font-black text-tertiary mb-2">+R$ 1,2 mi</p>
+                        <p class="font-bold text-gray-800 uppercase text-sm tracking-wide">/mês de Faturamento</p>
+                        <p class="text-sm text-gray-500 mt-2">Novo gerado unicamente pela recuperação de orçamentos abandonados e venda cruzada.</p>
+                    </div>
+                </div>
+
+                <!-- Execution Steps -->
+                <h4 class="text-2xl font-bold text-center text-primary mb-10 reveal">Como a Estratégia Foi Executada</h4>
+                
+                <div class="space-y-8 reveal delay-300">
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-primary flex gap-4">
+                        <div class="text-3xl text-primary font-black opacity-20">1</div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-800 mb-2">Resposta Imediata e Humanizada</h5>
+                            <p class="text-sm text-gray-600">Em vez de robôs com menus numéricos lentos ("digite 1 para..."), o paciente conversa em linguagem natural com um agente de IA treinado. Ele tira dúvidas sobre preparo, endereço, coberturas e horários em poucos segundos, eliminando a evasão para concorrentes.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-primary flex gap-4">
+                        <div class="text-3xl text-primary font-black opacity-20">2</div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-800 mb-2">Venda Cruzada no Pós-Atendimento</h5>
+                            <p class="text-sm text-gray-600 mb-2">A IA é conectada ao histórico e ao prontuário:</p>
+                            <ul class="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                                <li>Assim que o médico prescreve um exame ou o paciente recebe o laudo, o WhatsApp envia uma mensagem oferecendo o agendamento do exame complementar ou da especialidade correlata.</li>
+                                <li>Pacientes de rotina recebem sugestões pertinentes ao seu perfil (ex.: avaliação odontológica preventiva para quem fez check-up de rotina, ou vacinas para quem fez pediatria).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-primary flex gap-4">
+                        <div class="text-3xl text-primary font-black opacity-20">3</div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-800 mb-2">Recuperação de Orçamentos</h5>
+                            <p class="text-sm text-gray-600">Se o paciente consultou o preço de um exame de ticket maior e parou de responder, a IA aciona uma régua de contato após algumas horas: Pergunta de forma prestativa se restou dúvida sobre o preparo, mostra a disponibilidade da agenda para os próximos dias e apresenta condições de pagamento facilitadas.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-primary flex gap-4">
+                        <div class="text-3xl text-primary font-black opacity-20">4</div>
+                        <div>
+                            <h5 class="text-lg font-bold text-gray-800 mb-2">Lembretes Preditivos de Recorrência</h5>
+                            <p class="text-sm text-gray-600">O sistema mapeia quando os exames preventivos (como preventivos anuais, mamografias ou limpezas dentárias) completam 11 a 12 meses e convida o paciente a renovar o cuidado antes do vencimento do ciclo anual.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 09: Arquitetura de receita (Diagram) -->
+    <section class="py-24 bg-white border-y border-gray-200">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 09</h2>
+                <h3 class="text-4xl font-extrabold text-primary">Arquitetura de receita aplicada para MedCenter</h3>
+            </div>
+
+            <!-- CSS Flowchart Representation -->
+            <div class="max-w-4xl mx-auto flex flex-col items-center gap-8 reveal delay-100 font-mono text-sm">
+                
+                <!-- Top Row: Traffic Sources -->
+                <div class="flex flex-col md:flex-row gap-8 w-full justify-center">
+                    <div class="bg-blue-50 border-2 border-dashed border-blue-300 p-4 text-center rounded-lg w-full md:w-1/2 relative flow-arrow">
+                        <strong>[ Mídia Modular Geolocalizada ]</strong><br>
+                        <span class="text-xs text-gray-500">(Meta/Google Ads por praça)</span>
+                    </div>
+                    <div class="bg-blue-50 border-2 border-dashed border-blue-300 p-4 text-center rounded-lg w-full md:w-1/2 relative flow-arrow">
+                        <strong>[ Google Meu Negócio / Local SEO ]</strong><br>
+                        <span class="text-xs text-gray-500">(Padronização NAP + Reviews nas 5 cidades)</span>
+                    </div>
+                </div>
+
+                <!-- Platform -->
+                <div class="w-full mt-4">
+                    <div class="bg-primary text-white border-2 border-primary p-6 text-center rounded-xl shadow-lg relative flow-arrow">
+                        <strong class="text-lg">ENTRADA UNIFICADA: PLATAFORMA OMNI SMART</strong><br>
+                        <span class="text-tertiary">Triagem e Roteamento Automático via SDR IA</span>
+                    </div>
+                </div>
+
+                <!-- Hub and Spoke -->
+                <div class="flex flex-col md:flex-row gap-4 w-full justify-between items-stretch mt-4 relative">
+                    <!-- Spoke -->
+                    <div class="bg-white border-2 border-gray-300 p-6 text-center rounded-xl shadow-md w-full md:w-[45%] flex flex-col justify-center flow-arrow md:flow-arrow-right z-10">
+                        <strong class="text-primary block mb-2">SPOKES (UNIDADES SATÉLITES)</strong>
+                        <span class="text-gray-700 text-xs mb-2 block">Massapê, Forquilha, Granja e Martinópole</span>
+                        <span class="text-gray-500 text-xs italic">Consultas, Lab, Ultrassom e Triagem Preventiva</span>
+                    </div>
+
+                    <!-- Label in between for Desktop -->
+                    <div class="hidden md:flex flex-col items-center justify-center w-[10%] text-xs font-bold text-tertiary z-20 bg-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 p-2">
+                        <span>Encaminha</span>
+                        <span>Alto Ticket</span>
+                    </div>
+
+                    <!-- Hub -->
+                    <div class="bg-gray-50 border-2 border-primary border-t-8 p-6 text-center rounded-xl shadow-md w-full md:w-[45%] flex flex-col justify-center flow-arrow">
+                        <strong class="text-primary block mb-2">
+                            <span class="tooltip-container">HUB <span class="tooltip-text">Centro principal de alta complexidade que recebe pacientes encaminhados das unidades menores (Spokes).</span></span> 
+                            (MATRIZ EM SOBRAL)
+                        </strong>
+                        <span class="text-gray-700 text-xs">Parque de Imagem Avançado, Odonto Care, Vacinas, Medicina do Trabalho e Estética</span>
+                    </div>
+                </div>
+
+                <!-- ERP -->
+                <div class="w-full md:w-1/2 mt-4 ml-auto">
+                    <div class="bg-gray-800 text-white border-2 border-gray-800 p-4 text-center rounded-lg shadow flow-arrow">
+                        <strong>FECHAMENTO & ERP (STG)</strong><br>
+                        <span class="text-gray-300 text-xs">Venda Concluída + ID CPF</span>
+                    </div>
+                </div>
+
+                <!-- CRM -->
+                <div class="w-full md:w-1/2 mt-4 ml-auto">
+                    <div class="bg-tertiary text-white border-2 border-tertiary p-4 text-center rounded-lg shadow">
+                        <strong>CRM & FEEDBACK LOOP OFFLINE</strong><br>
+                        <div class="text-xs mt-1 text-left inline-block">
+                            1. Atribuição Offline Ads<br>
+                            2. Réguas Cross-Sell e Recall
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 10: SWOT -->
+    <section class="py-24 bg-light">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 10</h2>
+                <h3 class="text-4xl font-extrabold text-primary">MATRIZ SWOT CRUZADA</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto reveal delay-100">
+                
+                <!-- FO -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-green-500 hover:shadow-lg transition-shadow">
+                    <h4 class="text-xl font-bold text-green-600 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-trend-up"></i> FO (Forças → Oportunidades)
+                    </h4>
+                    <ul class="list-disc pl-5 text-sm text-gray-700 space-y-3">
+                        <li>Roteamento automático de pacientes das unidades satélites para o Hub de Sobral via SDR IA no Omni Smart.</li>
+                        <li>Ativação de campanhas de bônus venda cruzada automatizadas para odonto, vacinas e estética aproveitando a base de 350 mil cadastros.</li>
+                        <li>Implementação de réguas de automação de exames preventivos (ex: mamografia, check-ups e exames periódicos).</li>
+                    </ul>
+                </div>
+
+                <!-- WO -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-yellow-500 hover:shadow-lg transition-shadow">
+                    <h4 class="text-xl font-bold text-yellow-600 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-arrows-merge"></i> WO (Fraquezas → Oportunidades)
+                    </h4>
+                    <ul class="list-disc pl-5 text-sm text-gray-700 space-y-3">
+                        <li>Implementação de trackeamento com ID único por CPF integrado ao sistema STG para mensuração de conversões offline.</li>
+                        <li>Padronização rigorosa de NAP (Nome, Endereço e Telefone) e SEO Local no Google Meu Negócio para as 5 unidades.</li>
+                        <li>Criação de páginas de site e landing pages sub-mercados por exemplo para imagem, laboratório, odonto, vacinas e estética.</li>
+                        <li>Implantação de SDR IA para qualificação rápida de leads por cidade e redução do tempo de resposta no WhatsApp.</li>
+                        <li>Execução de régua comercial de recuperação (D0 a D7) para orçamentos pendentes de ressonância e tomografia.</li>
+                    </ul>
+                </div>
+
+                <!-- FA -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-blue-500 hover:shadow-lg transition-shadow">
+                    <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-shield-check"></i> FA (Forças → Ameaças)
+                    </h4>
+                    <ul class="list-disc pl-5 text-sm text-gray-700 space-y-3">
+                        <li>Fortalecimento do fluxo <span class="tooltip-container border-blue-600">Hub-and-Spoke<span class="tooltip-text">Modelo de rede onde unidades menores enviam pacientes para um centro principal.</span></span> para reter pacientes regionais antes do avanço de serviços de imagem de concorrentes</li>
+                        <li>Utilização das filiais como barreira de entrada contra clínicas populares e redes de descontos nas cidades vizinhas.</li>
+                        <li>Promoção dos diferenciais de agilidade (laudos em até 1h) e equipamentos próprios frente aos concorrentes locais.</li>
+                    </ul>
+                </div>
+
+                <!-- WA -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-red-500 hover:shadow-lg transition-shadow">
+                    <h4 class="text-xl font-bold text-red-600 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-warning-octagon"></i> WA (Fraquezas → Ameaças)
+                    </h4>
+                    <ul class="list-disc pl-5 text-sm text-gray-700 space-y-3">
+                        <li>Campanha contínua de coleta de avaliações no Google via QR Code nas recepções das filiais para ajudar no ranking orgânico.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 11: Execução Operacional -->
+    <section class="py-24 bg-white border-y border-gray-200">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 11</h2>
+                <h3 class="text-4xl font-extrabold text-primary">Execução operacional</h3>
+            </div>
+
+            <div class="max-w-5xl mx-auto space-y-12">
+                
+                <!-- CFM Context -->
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 text-gray-700 text-sm leading-relaxed reveal delay-100 italic">
+                    Para respeitar estritamente as resoluções do CFM (nº 2.336/2023) e do CFO, o benefício é tratado como um Programa de Continuidade do Cuidado para Clientes Cadastrados: Exemplo "Quem cuida da saúde na MedCenter tem acesso integrado à prevenção bucal . Apresente seu Código de Paciente MedCenter e receba uma Avaliação de Saúde Bucal na MedCenter Odonto Care."
+                </div>
+
+                <h4 class="text-2xl font-bold text-primary mt-8 mb-6 reveal">Esteira de produtos para gatilhos CRM Marketing</h4>
+
+                <!-- Gatilhos sistematicos -->
+                <div class="reveal delay-100">
+                    <h5 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Gatilhos sistematicos</h5>
+                    <ul class="space-y-4 text-sm text-gray-700">
+                        <li>
+                            <strong class="text-primary block">Calendário de Vacinas</strong>
+                            <span class="text-gray-500 italic block mb-1">Ex. de Gatilho:</span> Pacientes atendidos em ultrassonografia obstétrica, ginecologia ou pediatria.
+                        </li>
+                        <li>
+                            <strong class="text-primary block">Exames Preventivos e Check-ups Anuais:</strong>
+                            <span class="text-gray-500 italic block mb-1">Ex. de Gatilho:</span> Pacientes que realizaram mamografia, densitometria óssea ou exames laboratoriais de rotina há 11 meses (D+330).
+                        </li>
+                        <li>
+                            <strong class="text-primary block">Retorno de Especialidades Médicas:</strong>
+                            <span class="text-gray-500 italic block mb-1">Ex. de Gatilho:</span> Pacientes de consultas cardiológicas, urológicas ou endocrinológicas que necessitam de acompanhamento.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Image 1 -->
+                <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200 reveal delay-200 bg-gray-50 flex justify-center p-4">
+                    <img src="https://imgur.com/pQYElOo.png" alt="Fluxo CRM" class="max-h-[45vh] w-auto object-contain clickable-image hover:scale-[1.02] transition-transform" onerror="this.src='https://placehold.co/800x400/174078/FFFFFF?text=Imagem+pQYElOo'">
+                </div>
+
+                <!-- Gatilhos de incentivo Table -->
+                <div class="reveal delay-300">
+                    <h5 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 mt-12">Gatilhos de icentivo</h5>
+                    <div class="overflow-x-auto custom-scrollbar rounded-xl border border-gray-200">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
+                                    <th class="p-3 font-semibold border-b">Serviços</th>
+                                    <th class="p-3 font-semibold border-b">Gatilho</th>
+                                    <th class="p-3 font-semibold border-b">Momento de Disparo</th>
+                                    <th class="p-3 font-semibold border-b">Tipo de Incentivo</th>
+                                    <th class="p-3 font-semibold border-b">Empresa Benchmark</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-gray-600 divide-y divide-gray-100">
+                                <tr>
+                                    <td class="p-3 font-medium text-primary">Odontologia</td>
+                                    <td class="p-3">Após laudo de exame</td>
+                                    <td class="p-3 font-mono text-xs">D+0</td>
+                                    <td class="p-3">Voucher</td>
+                                    <td class="p-3 italic">CRM Bônus</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-medium text-primary">Odontologia</td>
+                                    <td class="p-3">após orçamento sem resposta</td>
+                                    <td class="p-3 font-mono text-xs">D+3</td>
+                                    <td class="p-3">Bônus financeiro</td>
+                                    <td class="p-3 italic">Mercado Livre</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-medium text-primary">Odontologia</td>
+                                    <td class="p-3">última consulta</td>
+                                    <td class="p-3 font-mono text-xs">D+180</td>
+                                    <td class="p-3">Upgrade preventivo / flúor</td>
+                                    <td class="p-3 italic">Cacau Show</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-medium text-primary">Odontologia</td>
+                                    <td class="p-3">Pós-conclusão de tratamento</td>
+                                    <td class="p-3 font-mono text-xs">D+1</td>
+                                    <td class="p-3">Crédito duplo (indicador/indicado)</td>
+                                    <td class="p-3 italic">Smart Fit</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="p-3 font-medium text-tertiary">Estética</td>
+                                    <td class="p-3">Após laudo de exame</td>
+                                    <td class="p-3 font-mono text-xs">D+0</td>
+                                    <td class="p-3">Amostra em pequena área (laser)</td>
+                                    <td class="p-3 italic">Espaçolaser</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="p-3 font-medium text-tertiary">Estética</td>
+                                    <td class="p-3">Bônus de Aniversário</td>
+                                    <td class="p-3">Dia 1 do mês de aniversário</td>
+                                    <td class="p-3">Crédito nominal de R$ 100 a R$ 200</td>
+                                    <td class="p-3 italic">O Boticário</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="p-3 font-medium text-tertiary">Estética</td>
+                                    <td class="p-3">Campanhas Sazonais</td>
+                                    <td class="p-3">Março, Maio e Outubro/Novembro</td>
+                                    <td class="p-3">Bônus combinado de procedimentos</td>
+                                    <td class="p-3 italic">Cacau Show</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Images 2 & 3 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 reveal delay-100">
+                    <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 flex justify-center p-4">
+                        <img src="https://imgur.com/juME8Ww.png" alt="Exemplo CRM 1" class="max-h-[40vh] w-auto object-contain clickable-image hover:scale-[1.02] transition-transform" onerror="this.src='https://placehold.co/400x300/174078/FFFFFF?text=Imagem+juME8Ww'">
+                    </div>
+                    <div class="rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 flex justify-center p-4">
+                        <img src="https://imgur.com/Gyy5RmU.png" alt="Exemplo CRM 2" class="max-h-[40vh] w-auto object-contain clickable-image hover:scale-[1.02] transition-transform" onerror="this.src='https://placehold.co/400x300/174078/FFFFFF?text=Imagem+Gyy5RmU'">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 12: Posicionamento -->
+    <section class="py-24 bg-primary text-white relative overflow-hidden">
+        <!-- Blobs -->
+        <div class="absolute -top-20 -right-20 w-96 h-96 bg-tertiary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 12</h2>
+                <h3 class="text-4xl font-extrabold text-white">Definição de como comunicar o posicionamento</h3>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                
+                <div class="bg-dark/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 mb-12 reveal delay-100">
+                    <h4 class="text-xl font-bold text-tertiary mb-4">A Brecha Estratégica</h4>
+                    <p class="text-lg text-blue-50 leading-relaxed">
+                        - Nenhum concorrente em Sobral e região se posiciona como um ecossistema completo de resolução de saúde para a família. A MedCenter tem estrutura para ser a única solução que integra tudo num lugar só implementando estratégia Hub-and-Spoke
+                    </p>
+                </div>
+
+                <div class="text-center mb-12 reveal delay-200">
+                    <h4 class="text-xl font-bold text-gray-300 mb-4 uppercase tracking-widest text-sm">Território de Marca</h4>
+                    <div class="inline-block border-2 border-tertiary px-8 py-4 rounded-full text-2xl font-bold text-white shadow-[0_0_20px_rgba(110,193,218,0.3)]">
+                        Laudo rápido <span class="text-tertiary px-2">·</span> Tudo num só lugar <span class="text-tertiary px-2">·</span> Perto de você
+                    </div>
+                </div>
+
+                <!-- 3 Pillars -->
+                <div class="grid md:grid-cols-3 gap-6 reveal delay-300">
+                    <div class="glass-dark p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform">
+                        <i class="ph-fill ph-clock-fast text-5xl text-tertiary mb-4"></i>
+                        <h5 class="text-xl font-bold mb-3">Pilar 1: Laudo rápido</h5>
+                        <p class="text-sm text-blue-100 leading-relaxed">
+                            Raio-X com laudo digital entregue em até 1 hora; ressonância magnética com inteligência artificial nativa entregue em prazos a partir de 3 horas (rotina em até 48 horas, contra 3 a 5 dias da concorrência).
+                        </p>
+                    </div>
+                    <div class="glass-dark p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform">
+                        <i class="ph-fill ph-squares-four text-5xl text-tertiary mb-4"></i>
+                        <h5 class="text-xl font-bold mb-3">Pilar 2: Tudo num só lugar</h5>
+                        <p class="text-sm text-blue-100 leading-relaxed">
+                            Portfólio completo (RM de 26 canais, tomografia, mamografia, ultrassom, densitometria), laboratório com especialistas, Odonto Care e sala de vacinas.
+                        </p>
+                    </div>
+                    <div class="glass-dark p-8 rounded-2xl text-center hover:-translate-y-2 transition-transform">
+                        <i class="ph-fill ph-map-pin text-5xl text-tertiary mb-4"></i>
+                        <h5 class="text-xl font-bold mb-3">Pilar 3: Perto de você</h5>
+                        <p class="text-sm text-blue-100 leading-relaxed">
+                            Rede com 5 unidades ativas num eixo do norte do Ceára
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão 13: Conclusão -->
+    <section class="py-24 bg-light">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-sm font-bold text-tertiary uppercase tracking-wider mb-2">Sessão 13</h2>
+                <h3 class="text-4xl font-extrabold text-primary">Conclusão e Próximos Passos</h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                
+                <!-- O que aconteceu -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm reveal delay-100">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <i class="ph-fill ph-check-circle text-green-500"></i> O QUE ACONTECEU ESSA SEMANA
+                    </h4>
+                    <ul class="space-y-4 text-gray-700">
+                        <li class="flex gap-3">
+                            <span class="text-tertiary mt-1">•</span>
+                            <span>Entendemos de forma mais aprofundada o seu mercado, concorrentes e o seu público.</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="text-tertiary mt-1">•</span>
+                            <span>Comparamos a sua solução com a de seus concorrentes, conseguindo uma visão clara de como cada player está no mercado.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Próximos passos -->
+                <div class="bg-primary p-8 rounded-2xl shadow-xl text-white reveal delay-200">
+                    <h4 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i class="ph-fill ph-arrow-circle-right text-tertiary"></i> PRÓXIMOS PASSOS:
+                    </h4>
+                    <ul class="space-y-3 text-blue-100 font-medium">
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Revisão das campanhas
+                        </li>
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Revisão das ferramentas
+                        </li>
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Análise dos seus criativos de redes
+                        </li>
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Análise dos seus concorrentes
+                        </li>
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Estudo de performance
+                        </li>
+                        <li class="flex items-center gap-3 bg-dark/20 p-2 rounded">
+                            <div class="w-6 h-6 rounded-full border-2 border-tertiary"></div> Diagnóstico de Copy
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-footer text-white py-8">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+            <span class="text-sm font-medium tracking-wide uppercase opacity-80">Produzido por:</span>
+            <img src="https://imgur.com/SU08Zb0.png" alt="V4 Company Logo" class="h-8 hover:scale-105 transition-transform" onerror="this.src='https://brand.v4company.com/_next/image?url=%2Fimages%2Flogos%2Fsimbolo-company.webp&w=256&q=75'; this.classList.remove('h-8'); this.classList.add('h-6');">
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="Imagem Ampliada">
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Sticky Header Glassmorphism effect
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('glass');
+                header.classList.remove('bg-transparent');
+                header.classList.remove('py-4');
+                header.classList.add('py-2');
+                // Change MedCenter logo to colored version if needed (assuming white version is hard to see on white glass)
+                // For this layout, the glass is white, so the white logo might disappear. 
+                // Adding a text shadow or changing bg-color of glass for better contrast if needed, but keeping it simple based on instructions.
+                document.getElementById('header-logo-client').style.filter = 'drop-shadow(0px 0px 2px rgba(0,0,0,0.8))';
+            } else {
+                header.classList.remove('glass');
+                header.classList.add('bg-transparent');
+                header.classList.add('py-4');
+                header.classList.remove('py-2');
+                document.getElementById('header-logo-client').style.filter = 'none';
+            }
+        });
+
+        // Intersection Observer for Scroll Reveal
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Reveal only once
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const images = document.querySelectorAll('.clickable-image');
+
+        images.forEach(img => {
+            img.addEventListener('click', (e) => {
+                lightboxImg.src = e.target.src;
+                lightbox.classList.add('show');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            });
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            // Close if clicked outside the image
+            if (e.target !== lightboxImg) {
+                lightbox.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
