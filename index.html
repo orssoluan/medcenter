@@ -1,1 +1,1684 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrega Final - MedCenter Clínica e Imagem | V4 Silva Anchieta & Co</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        medPrimary: '#174078',
+                        medSecondary: '#FFFFFF',
+                        medTertiary: '#6EC1DA',
+                        v4Red: '#E50914',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* =========================================
+           ESTILOS GERAIS E UTILITÁRIOS
+           ========================================= */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090D16;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        /* Barra de rolagem customizada discreta */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090D16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #174078;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6EC1DA;
+        }
+
+        /* Animação do Hero Canvas */
+        #hero-section {
+            position: relative;
+            background-color: #174078;
+            overflow: hidden;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Animações sutis de entrada */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+        .reveal-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Destaque pulsante para a Etapa 5 da Linha do Tempo */
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(110, 193, 218, 0.45), 0 15px 35px rgba(23, 64, 120, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(110, 193, 218, 0), 0 20px 45px rgba(110, 193, 218, 0.35);
+            }
+        }
+        .timeline-highlight-card {
+            animation: pulseGlow 3s infinite;
+        }
+
+        /* =========================================
+           ESTILOS ESCOPADOS DO GRÁFICO DE GANTT
+           (Mantendo 100% da estrutura e cores do cliente)
+           ========================================= */
+        :root {
+            --brand-primary: #174078; /* Cor Primária: Azul Escuro */
+            --secondary: #FFFFFF;     /* Cor Secundária: Branco */
+            --primary: #6EC1DA;       /* Cor Terciária: Azul Claro para destaques e barras */
+            --header-bg: #174078;
+            --text-main: #2b3a42;
+            --text-light: #546e7a;
+            --bg-page: #f4f7f9;
+            --bg-container: #FFFFFF;
+            --border-color: #dbe0ea;
+            --cell-bg: #FFFFFF;
+            --topic-bg: #f5f9fc;
+        }
+
+        .gantt-wrapper-outer {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        .gantt-container-box {
+            width: 100%;
+            min-width: 880px;
+            background: var(--bg-container);
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(110, 193, 218, 0.25);
+        }
+
+        .gantt-chart {
+            display: grid;
+            /* 1 coluna para Ação + 6 colunas para os meses */
+            grid-template-columns: 280px repeat(6, minmax(95px, 1fr));
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .gantt-header {
+            background-color: var(--header-bg);
+            color: var(--secondary);
+            padding: 15px 10px;
+            font-weight: 700;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.92rem;
+        }
+        
+        .gantt-header:last-child { border-right: none; }
+        .gantt-header.topic { text-align: left; padding-left: 18px; }
+
+        .gantt-cell {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            min-height: 62px;
+            background-color: var(--cell-bg);
+        }
+        
+        /* Remove a borda direita da última coluna (7ª coluna no total) */
+        .gantt-cell:nth-child(7n) { border-right: none; }
+
+        .topic-cell {
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: var(--topic-bg);
+            font-size: 0.95rem;
+            padding-left: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .badge-contratar {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--brand-primary);
+            color: var(--secondary);
+            border: 1px solid var(--primary);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            line-height: 1.3;
+        }
+
+        .badge-contratar i {
+            color: var(--primary);
+            font-size: 0.65rem;
+        }
+
+        .gantt-bar {
+            background-color: var(--primary);
+            height: 38px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(110, 193, 218, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #174078;
+            font-weight: 700;
+            font-size: 0.75rem;
+            gap: 6px;
+        }
+
+        .gantt-bar:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 14px rgba(110, 193, 218, 0.65);
+            background-color: #52aec9;
+            color: #FFFFFF;
+        }
+
+        .gantt-bar.bar-contratar {
+            background-color: var(--brand-primary);
+            color: var(--secondary);
+            border: 2px dashed var(--primary);
+            box-shadow: 0 3px 10px rgba(23, 64, 120, 0.35);
+            font-size: 0.7rem;
+            padding: 0 6px;
+            white-space: nowrap;
+        }
+
+        .gantt-bar.bar-contratar i {
+            color: var(--primary);
+        }
+
+        .gantt-bar.bar-contratar:hover {
+            background-color: #0f2c54;
+            border-style: solid;
+            color: var(--secondary);
+            box-shadow: 0 6px 14px rgba(23, 64, 120, 0.55);
+        }
+
+        .modal-contratar-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #f0f7fb;
+            border-left: 4px solid var(--brand-primary);
+            border-top: 1px solid #d5e6f2;
+            border-right: 1px solid #d5e6f2;
+            border-bottom: 1px solid #d5e6f2;
+            color: var(--brand-primary);
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-top: 8px;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Modal do Gantt */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(9, 13, 22, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-container);
+            padding: 32px;
+            border-radius: 14px;
+            max-width: 620px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border-top: 5px solid var(--brand-primary);
+            animation: modalFadeIn 0.28s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 14px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover { color: var(--brand-primary); }
+
+        .modal-title {
+            color: var(--brand-primary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 14px;
+            padding-right: 30px;
+            text-align: left;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+            padding-bottom: 6px;
+        }
+
+        .modal-desc {
+            color: var(--text-light);
+            line-height: 1.7;
+            font-size: 1.02rem;
+            margin-top: 10px;
+        }
+
+        .modal-meta {
+            margin-top: 22px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            color: var(--brand-primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .gantt-container-box {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-medTertiary selection:text-medPrimary">
+
+    <!-- =====================================================
+         TOPO FIXO COM LOGOTIPOS (MEDCENTER CENTRALIZADO + V4 À DIREITA)
+         ===================================================== -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-[#0B1320]/95 backdrop-blur-md border-b border-white/10 shadow-2xl transition-all duration-300">
+        <!-- Barra superior de progresso da leitura -->
+        <div class="w-full h-1 bg-neutral-900">
+            <div id="scroll-progress" class="h-full bg-medTertiary w-0 transition-all duration-150"></div>
+        </div>
+
+        <div class="w-full max-w-[1440px] mx-auto px-4 sm:px-8 h-20 sm:h-24 grid grid-cols-[1fr_auto_1fr] items-center">
+            <!-- Coluna Esquerda vazia para manter o logotipo do cliente matematicamente centralizado -->
+            <div></div>
+
+            <!-- Coluna Central: Logotipo do Cliente MedCenter (Centralizado) -->
+            <div class="flex justify-center items-center">
+                <a href="#hero-section" class="focus:outline-none">
+                    <img 
+                        src="https://medcenterclinica.com/wp-content/uploads/2024/12/logo_medcenter_white.png" 
+                        alt="MedCenter Clínica e Imagem" 
+                        class="h-10 sm:h-12 md:h-14 w-auto object-contain drop-shadow-md"
+                        onerror="this.onerror=null; this.src='https://placehold.co/260x70/174078/FFFFFF?text=MedCenter+Cl%C3%ADnica+e+Imagem';"
+                    >
+                </a>
+            </div>
+
+            <!-- Coluna Direita: Logotipo V4 Silva Anchieta & Co ao lado direito do logotipo do cliente -->
+            <div class="flex items-center justify-end sm:justify-start sm:pl-6 md:pl-10">
+                <div class="h-8 sm:h-10 w-px bg-white/15 mr-3 sm:mr-6 hidden sm:block"></div>
+                <img 
+                    src="https://i.imgur.com/jmzaox0.png" 
+                    referrerpolicy="no-referrer"
+                    alt="V4 Silva Anchieta & Co" 
+                    class="h-7 sm:h-9 md:h-11 w-auto object-contain brightness-0 invert"
+                    onerror="handleImgurFallback(this, 'jmzaox0', 'V4+Silva+Anchieta+%26+Co')"
+                >
+            </div>
+        </div>
+    </header>
+
+    <!-- Espaçador para compensar o cabeçalho fixo -->
+    <div class="h-20 sm:h-24 bg-[#174078]"></div>
+
+    <!-- =====================================================
+         SESSÃO 1: HERO COM ANIMAÇÃO DE REDE NO FUNDO (#174078)
+         ===================================================== -->
+    <section id="hero-section" class="relative min-h-[82vh] flex items-center justify-center px-4 sm:px-8 py-20">
+        <!-- Canvas onde a animação de partículas acontece -->
+        <canvas id="hero-canvas"></canvas>
+
+        <!-- Gradiente radial sutil para garantir máxima leitura da Headline -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#174078]/30 via-[#174078]/50 to-[#0B0F17] pointer-events-none z-[2]"></div>
+
+        <!-- Conteúdo sobreposto -->
+        <div class="relative z-10 w-full max-w-6xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight max-w-5xl mx-auto drop-shadow-lg">
+                Diagnóstico e Planejamento de Marketing e Vendas
+            </h1>
+
+            <div class="mt-12">
+                <a href="#etapas" class="inline-flex items-center gap-3 px-7 py-4 rounded-xl bg-white text-medPrimary font-extrabold text-sm sm:text-base shadow-xl hover:bg-medTertiary hover:text-medPrimary transition-all duration-300">
+                    <span>Explorar Apresentação Completa</span>
+                    <i class="fa-solid fa-arrow-down animate-bounce"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 2: LINHA DO TEMPO VISUAL (#0B0F17 - Neutro Escuro)
+         TUDO QUE VOCÊ APRENDEU NO PROJETO / ETAPAS DE ESTUDO DESSE PROJETO
+         ===================================================== -->
+    <section id="etapas" class="w-full min-h-[calc(100vh-5.25rem)] sm:min-h-[calc(100vh-6.25rem)] scroll-mt-[5.25rem] sm:scroll-mt-[6.25rem] flex items-center bg-[#0B0F17] py-16 sm:py-20 px-4 sm:px-8 lg:px-14 border-t border-white/5">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <!-- Cabeçalho da Sessão -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    ETAPAS DE ESTUDO DESSE PROJETO
+                </h2>
+                <div class="w-20 h-1 bg-medTertiary rounded-full mx-auto mt-4"></div>
+            </div>
+
+            <!-- Linha do Tempo Visual em Largura Total -->
+            <div class="relative">
+                <!-- Linha conectora horizontal (Desktop) -->
+                <div class="hidden lg:block absolute top-10 left-[8%] right-[8%] h-1 bg-neutral-800 rounded-full z-0">
+                    <div class="h-full w-full bg-gradient-to-r from-medPrimary via-medPrimary to-medTertiary rounded-full"></div>
+                </div>
+
+                <!-- Linha conectora vertical (Mobile/Tablet) -->
+                <div class="lg:hidden absolute top-6 bottom-6 left-7 w-1 bg-gradient-to-b from-medPrimary to-medTertiary rounded-full z-0"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-5 relative z-10">
+                    <!-- Etapa 1 -->
+                    <div class="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-0 group">
+                        <div class="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl bg-neutral-900 border-2 border-medPrimary group-hover:border-medTertiary flex items-center justify-center shrink-0 shadow-lg transition-all duration-300 lg:mb-6">
+                            <i class="fa-solid fa-rocket text-medTertiary text-xl lg:text-2xl"></i>
+                        </div>
+                        <div class="flex-1 w-full bg-neutral-900/90 border border-white/10 group-hover:border-medTertiary/40 rounded-2xl p-6 lg:text-center transition-all duration-300 h-full flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block text-xs font-bold uppercase tracking-wider text-medTertiary bg-medPrimary/40 px-3 py-1 rounded-lg mb-3">
+                                    Semana 1
+                                </span>
+                                <h3 class="text-lg font-bold text-white leading-snug">
+                                    Semana 1: Kick-Off e Oferta Principal
+                                </h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/5 flex items-center lg:justify-center gap-2 text-xs text-neutral-400">
+                                <i class="fa-solid fa-circle-check text-medTertiary"></i>
+                                <span>Etapa Concluída</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 2 -->
+                    <div class="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-0 group">
+                        <div class="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl bg-neutral-900 border-2 border-medPrimary group-hover:border-medTertiary flex items-center justify-center shrink-0 shadow-lg transition-all duration-300 lg:mb-6">
+                            <i class="fa-solid fa-compass text-medTertiary text-xl lg:text-2xl"></i>
+                        </div>
+                        <div class="flex-1 w-full bg-neutral-900/90 border border-white/10 group-hover:border-medTertiary/40 rounded-2xl p-6 lg:text-center transition-all duration-300 h-full flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block text-xs font-bold uppercase tracking-wider text-medTertiary bg-medPrimary/40 px-3 py-1 rounded-lg mb-3">
+                                    Semana 2
+                                </span>
+                                <h3 class="text-lg font-bold text-white leading-snug">
+                                    Semana 2: Pesquisa de Mercado &amp; Posicionamento
+                                </h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/5 flex items-center lg:justify-center gap-2 text-xs text-neutral-400">
+                                <i class="fa-solid fa-circle-check text-medTertiary"></i>
+                                <span>Etapa Concluída</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 3 -->
+                    <div class="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-0 group">
+                        <div class="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl bg-neutral-900 border-2 border-medPrimary group-hover:border-medTertiary flex items-center justify-center shrink-0 shadow-lg transition-all duration-300 lg:mb-6">
+                            <i class="fa-solid fa-chart-pie text-medTertiary text-xl lg:text-2xl"></i>
+                        </div>
+                        <div class="flex-1 w-full bg-neutral-900/90 border border-white/10 group-hover:border-medTertiary/40 rounded-2xl p-6 lg:text-center transition-all duration-300 h-full flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block text-xs font-bold uppercase tracking-wider text-medTertiary bg-medPrimary/40 px-3 py-1 rounded-lg mb-3">
+                                    Semana 3
+                                </span>
+                                <h3 class="text-lg font-bold text-white leading-snug">
+                                    Semana 3: Diagnóstico de Marketing
+                                </h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/5 flex items-center lg:justify-center gap-2 text-xs text-neutral-400">
+                                <i class="fa-solid fa-circle-check text-medTertiary"></i>
+                                <span>Etapa Concluída</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 4 -->
+                    <div class="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-0 group">
+                        <div class="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl bg-neutral-900 border-2 border-medPrimary group-hover:border-medTertiary flex items-center justify-center shrink-0 shadow-lg transition-all duration-300 lg:mb-6">
+                            <i class="fa-solid fa-comments-dollar text-medTertiary text-xl lg:text-2xl"></i>
+                        </div>
+                        <div class="flex-1 w-full bg-neutral-900/90 border border-white/10 group-hover:border-medTertiary/40 rounded-2xl p-6 lg:text-center transition-all duration-300 h-full flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block text-xs font-bold uppercase tracking-wider text-medTertiary bg-medPrimary/40 px-3 py-1 rounded-lg mb-3">
+                                    Semana 4
+                                </span>
+                                <h3 class="text-lg font-bold text-white leading-snug">
+                                    Semana 4: Diagnóstico de Comercial
+                                </h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/5 flex items-center lg:justify-center gap-2 text-xs text-neutral-400">
+                                <i class="fa-solid fa-circle-check text-medTertiary"></i>
+                                <span>Etapa Concluída</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 5: DESTAQUE ESPECIAL - Plano de Marketing e Vendas -->
+                    <div class="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-0 lg:-mt-3">
+                        <div class="w-14 h-14 lg:w-24 lg:h-24 rounded-2xl bg-medTertiary text-medPrimary border-4 border-white flex items-center justify-center shrink-0 shadow-2xl lg:mb-5">
+                            <i class="fa-solid fa-trophy text-2xl lg:text-3xl"></i>
+                        </div>
+                        <div class="flex-1 w-full bg-gradient-to-br from-medPrimary via-[#1c4f94] to-[#0f2b52] border-2 border-medTertiary rounded-2xl p-6 lg:text-center timeline-highlight-card h-full flex flex-col justify-between relative overflow-hidden">
+                            <div>
+                                <span class="inline-block text-xs font-black uppercase tracking-wider text-medPrimary bg-medTertiary px-3 py-1 rounded-lg mb-3">
+                                    Semana 5
+                                </span>
+                                <h3 class="text-xl font-black text-white leading-snug">
+                                    Semana 5: Plano de Marketing e Vendas
+                                </h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/20 flex items-center lg:justify-center gap-2 text-xs font-bold text-medTertiary">
+                                <i class="fa-solid fa-star"></i>
+                                <span>Entrega Estratégica Principal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 3: NOSSO NORTE (#141923 - Cinza Grafite Escuro)
+         ===================================================== -->
+    <section id="nosso-norte" class="w-full min-h-[calc(100vh-5.25rem)] sm:min-h-[calc(100vh-6.25rem)] scroll-mt-[5.25rem] sm:scroll-mt-[6.25rem] flex items-center bg-[#141923] py-16 sm:py-20 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <!-- Coluna Esquerda: Título e Pergunta Norteadora -->
+                <div class="lg:col-span-5 space-y-5">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-medPrimary text-medTertiary text-xs font-bold uppercase tracking-widest border border-medTertiary/30">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>NOSSO NORTE:</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                        Qual o principal objetivo que deseja alcançar com a V4 Company?
+                    </h2>
+                </div>
+
+                <!-- Coluna Direita: Declaração Integral -->
+                <div class="lg:col-span-7">
+                    <div class="relative bg-gradient-to-br from-medPrimary to-[#0e294d] border border-medTertiary/40 rounded-3xl p-8 sm:p-12 shadow-2xl overflow-hidden">
+                        <i class="fa-solid fa-quote-right absolute -bottom-4 -right-2 text-8xl text-white/5 pointer-events-none"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-medTertiary/20 border border-medTertiary/40 flex items-center justify-center text-medTertiary text-xl mb-6">
+                            <i class="fa-solid fa-quote-left"></i>
+                        </div>
+                        <p class="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-relaxed">
+                            Estruturar um setor comercial, integrar e cuidar do nosso marketing digital, controle de tráfego pago, entrega de indicadores e dados que permitam orientam nossas decisões de investimento em Marketing
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 4: PLANO DE AÇÃO DA 2ª SEMANA (#09090B - Preto Neutro)
+         Pesquisa de Mercado & Posicionamento
+         ===================================================== -->
+    <section id="semana2" class="w-full bg-[#09090B] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <!-- Cabeçalho -->
+            <div class="mb-12">
+                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-neutral-800 text-medTertiary text-xs font-bold uppercase tracking-wider mb-3 border border-white/10">
+                    <i class="fa-solid fa-map-location-dot"></i> Etapa 02
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    2ª semana - Pesquisa de Mercado &amp; Posicionamento
+                </h2>
+            </div>
+
+            <!-- Grid dos 3 Fatos + Planos de Ação -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Fato 01 -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="px-3 py-1 rounded-lg bg-medPrimary text-white text-xs font-extrabold uppercase tracking-wider">
+                                Fato 01
+                            </span>
+                            <div class="w-11 h-11 rounded-xl bg-medPrimary/30 border border-medTertiary/30 flex items-center justify-center text-medTertiary text-lg">
+                                <i class="fa-solid fa-star-half-stroke"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 01: Reputação forte só na Matriz
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/40 border border-white/5 rounded-xl p-3.5 font-medium">
+                            A Matriz tem 2.000 avaliações
+                        </p>
+                    </div>
+
+                    <div class="bg-[#121A28] border-t border-medTertiary/30 p-7 mt-2">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2.5">
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white/95 text-sm sm:text-base leading-relaxed">
+                            Definir meta mensal de avaliações por Unidade, com pedido pelo WhatsApp depois do atendimento e QR Code na recepção, para ganhar a busca local nas quatro cidades.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 02 -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="px-3 py-1 rounded-lg bg-medPrimary text-white text-xs font-extrabold uppercase tracking-wider">
+                                Fato 02
+                            </span>
+                            <div class="w-11 h-11 rounded-xl bg-medPrimary/30 border border-medTertiary/30 flex items-center justify-center text-medTertiary text-lg">
+                                <i class="fa-brands fa-instagram"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 02: Unidades não falam da Matriz
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/40 border border-white/5 rounded-xl p-3.5 font-medium">
+                            Os perfis das Unidades não citam a Matriz
+                        </p>
+                    </div>
+
+                    <div class="bg-[#121A28] border-t border-medTertiary/30 p-7 mt-2">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2.5">
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white/95 text-sm sm:text-base leading-relaxed">
+                            Publicar bios e fichas com o texto Matriz–Unidades conforme orientação na etapa de diag. de marketing.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 03 -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="px-3 py-1 rounded-lg bg-medPrimary text-white text-xs font-extrabold uppercase tracking-wider">
+                                Fato 03
+                            </span>
+                            <div class="w-11 h-11 rounded-xl bg-medPrimary/30 border border-medTertiary/30 flex items-center justify-center text-medTertiary text-lg">
+                                <i class="fa-solid fa-building-circle-exclamation"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 03: Presença local dividida
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/40 border border-white/5 rounded-xl p-3.5 font-medium">
+                            Os 7 perfis de Instagram e as 7 fichas do Google têm nome, endereço e telefone diferentes;
+                        </p>
+                    </div>
+
+                    <div class="bg-[#121A28] border-t border-medTertiary/30 p-7 mt-2">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2.5">
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white/95 text-sm sm:text-base leading-relaxed">
+                            Padronizar nome, endereço e o telefone no Google, no Instagram e no Doctoralia, com textos que ligam a Matriz às Unidades, conforme direcionado na etapa de diag. de marketing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão de Acesso da 2ª Semana (Abre na mesma aba conforme solicitado) -->
+            <div class="flex items-center justify-center pt-2">
+                <a 
+                    href="https://orssoluan.github.io/medcenter/pesquisa" 
+                    target="_self"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-base border border-medTertiary/50 shadow-lg transition-all duration-300"
+                >
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Clique para acessar o material</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 5: PLANO DE AÇÃO DA 3ª SEMANA (#174078 - Azul Primário MedCenter)
+         Diagnóstico Marketing
+         ===================================================== -->
+    <section id="semana3" class="w-full bg-[#174078] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/15">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <!-- Cabeçalho -->
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/30 text-medTertiary text-xs font-bold uppercase tracking-wider mb-3 border border-medTertiary/30">
+                    <i class="fa-solid fa-bullhorn"></i> Etapa 03
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    3ª semana - Diagnóstico Marketing
+                </h2>
+            </div>
+
+            <!-- Grid dos 4 Fatos + Planos de Ação (2x2 em telas grandes) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+                <!-- Fato 01 -->
+                <div class="bg-[#0B192E] border border-white/15 hover:border-medTertiary rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl transition-all duration-300">
+                    <div class="p-7">
+                        <div class="flex items-center justify-end mb-4">
+                            <i class="fa-solid fa-code-branch text-medTertiary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 01: Mídia sem rastreio de retorno
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/30 border border-white/10 rounded-xl p-3.5">
+                            R$ 10 mil/mês em mídia sem GTM, GA4, Pixel ou UTM
+                        </p>
+                    </div>
+                    <div class="bg-black/40 border-t border-white/10 p-7">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Implantar GTM, GA4, Pixel e UTMs, registrar código de origem e CPF no Omni Smart e cruzar com o STG toda semana.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 02 -->
+                <div class="bg-[#0B192E] border border-white/15 hover:border-medTertiary rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl transition-all duration-300">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3.5 py-1 rounded-lg bg-medTertiary text-medPrimary text-xs font-black uppercase tracking-wider">
+                                Fato 02
+                            </span>
+                            <i class="fa-solid fa-arrows-rotate text-medTertiary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 02: Base de 400 mil parada
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/30 border border-white/10 rounded-xl p-3.5">
+                            Base de 300–400 mil cadastros sem reativação nem lembrete preventivo
+                        </p>
+                    </div>
+                    <div class="bg-black/40 border-t border-white/10 p-7">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Lançar réguas D+330 de mamografia, densitometria e check-up, começando por Sobral, e medir os agendamentos de cada régua no cruzamento com o STG.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 03 -->
+                <div class="bg-[#0B192E] border border-white/15 hover:border-medTertiary rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl transition-all duration-300">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3.5 py-1 rounded-lg bg-medTertiary text-medPrimary text-xs font-black uppercase tracking-wider">
+                                Fato 03
+                            </span>
+                            <i class="fa-solid fa-calendar-days text-medTertiary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 03: Sem calendário integrado de campanhas
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/30 border border-white/10 rounded-xl p-3.5">
+                            Não há calendário que junte campanhas, ativações e metas;
+                        </p>
+                    </div>
+                    <div class="bg-black/40 border-t border-white/10 p-7">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Entregar  calendário de dezembro a maio com datas sazonais, réguas e verba por serviço, priorizado pelo método RICE e ligado ao forecast de 6 meses.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 04 -->
+                <div class="bg-[#0B192E] border border-white/15 hover:border-medTertiary rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl transition-all duration-300">
+                    <div class="p-7">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3.5 py-1 rounded-lg bg-medTertiary text-medPrimary text-xs font-black uppercase tracking-wider">
+                                Fato 04
+                            </span>
+                            <i class="fa-solid fa-tooth text-medTertiary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">
+                            Fato 04: Odonto, estética e vacinas com agenda ociosa
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/30 border border-white/10 rounded-xl p-3.5">
+                            Odonto Care e Vacinas têm zero anúncios no Meta; agendas ociosas
+                        </p>
+                    </div>
+                    <div class="bg-black/40 border-t border-white/10 p-7">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Lançar réguas de ativações da base para odonto e vacinas com gatilho após o laudo e calendário vacinal, aceitando até margem menor para cliente que está fazendo a primeira consulta e já é cliente MedCenter
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão de Acesso da 3ª Semana (Abre na mesma aba) -->
+            <div class="text-center">
+                <a 
+                    href="https://orssoluan.github.io/medcenter/marketing" 
+                    target="_self"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-9 py-4 rounded-xl bg-white hover:bg-medTertiary text-medPrimary font-extrabold text-base shadow-2xl transition-all duration-300"
+                >
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>Clique para acessar o material</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 6: PLANO DE AÇÃO DA 4ª SEMANA (#12161F - Cinza Ardósia Escuro)
+         Diagnóstico Comercial
+         ===================================================== -->
+    <section id="semana4" class="w-full bg-[#12161F] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <!-- Cabeçalho -->
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neutral-800 text-medTertiary text-xs font-bold uppercase tracking-wider mb-3 border border-white/10">
+                    <i class="fa-solid fa-headset"></i> Etapa 04
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    4ª semana - Diagnóstico Comercial
+                </h2>
+            </div>
+
+            <!-- Infográfico Visual do Gargalo de Atendimento no WhatsApp -->
+            <div class="bg-neutral-900/90 border border-white/10 rounded-3xl p-6 sm:p-8 mb-10 shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    <!-- Tempo de Espera -->
+                    <div class="flex items-center gap-4 bg-black/40 border border-white/5 rounded-2xl p-5">
+                        <div class="w-14 h-14 rounded-2xl bg-medPrimary/40 border border-medTertiary/40 flex items-center justify-center text-medTertiary text-2xl shrink-0">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-neutral-400 font-bold">Tempo de Espera no Pico</p>
+                            <p class="text-2xl font-black text-white mt-0.5">20–30 min</p>
+                            <p class="text-xs text-neutral-400 mt-0.5">Gargalo de resposta no WhatsApp</p>
+                        </div>
+                    </div>
+
+                    <!-- Representação Visual: De 8 agendáveis, só 3 agendam -->
+                    <div class="bg-black/40 border border-white/5 rounded-2xl p-5 text-center">
+                        <p class="text-xs uppercase tracking-wider text-neutral-400 font-bold mb-3">
+                            Conversão Atual: De 8 agendáveis, só 3 agendam
+                        </p>
+                        <div class="flex items-center justify-center gap-2.5 sm:gap-3 mb-2">
+                            <!-- 3 agendados (destaque azul claro) -->
+                            <div class="w-8 h-8 rounded-lg bg-medTertiary text-medPrimary flex items-center justify-center font-bold shadow"><i class="fa-solid fa-user-check text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-medTertiary text-medPrimary flex items-center justify-center font-bold shadow"><i class="fa-solid fa-user-check text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-medTertiary text-medPrimary flex items-center justify-center font-bold shadow"><i class="fa-solid fa-user-check text-sm"></i></div>
+                            <!-- 5 perdidos no funil (neutro escuro) -->
+                            <div class="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-500 border border-white/10 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-500 border border-white/10 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-500 border border-white/10 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-500 border border-white/10 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-neutral-800 text-neutral-500 border border-white/10 flex items-center justify-center"><i class="fa-solid fa-user-xmark text-sm"></i></div>
+                        </div>
+                        <p class="text-xs text-medTertiary font-semibold">Oportunidade imediata de recuperação via Follow-up</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid dos 2 Fatos + Planos de Ação -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Fato 01 -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl overflow-hidden flex flex-col justify-between shadow-xl transition-all duration-300">
+                    <div class="p-7 sm:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3.5 py-1 rounded-lg bg-medPrimary text-white text-xs font-extrabold uppercase tracking-wider">
+                                Fato 01
+                            </span>
+                            <div class="w-11 h-11 rounded-xl bg-medPrimary/30 border border-medTertiary/30 flex items-center justify-center text-medTertiary text-lg">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">
+                            Fato 01: Meta sem atividade acionavel
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/40 border border-white/5 rounded-xl p-4">
+                            A meta é trimestral e ninguém responde por ela; o call center não tem meta diária por procedimento.
+                        </p>
+                    </div>
+                    <div class="bg-[#162235] border-t border-medTertiary/30 p-7 sm:p-8">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2.5">
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Nomear a nova responsável comercial como dona da meta diária por procedimento, com quadro de gestão à vista do call center e para conseguir direcionar o call center fazer lista de transmissão para leads parados em orçamento por etiquetas.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fato 02 -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl overflow-hidden flex flex-col justify-between shadow-xl transition-all duration-300">
+                    <div class="p-7 sm:p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3.5 py-1 rounded-lg bg-medPrimary text-white text-xs font-extrabold uppercase tracking-wider">
+                                Fato 02
+                            </span>
+                            <div class="w-11 h-11 rounded-xl bg-medPrimary/30 border border-medTertiary/30 flex items-center justify-center text-medTertiary text-lg">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">
+                            Fato 02: Funil do WhatsApp ineficiente
+                        </h3>
+                        <p class="text-neutral-300 text-sm sm:text-base bg-black/40 border border-white/5 rounded-xl p-4">
+                            Espera de 20–30 min no pico; de 8 agendáveis, só 3 agendam
+                        </p>
+                    </div>
+                    <div class="bg-[#162235] border-t border-medTertiary/30 p-7 sm:p-8">
+                        <div class="flex items-center gap-2 text-medTertiary font-extrabold text-xs uppercase tracking-widest mb-2.5">
+                            <i class="fa-solid fa-circle-arrow-right"></i>
+                            <span>PLANO DE AÇÃO</span>
+                        </div>
+                        <p class="text-white text-sm sm:text-base leading-relaxed">
+                            Ativar o Kanban do Omni Smart (Em Orçamento e Perdido com motivo) e testar SDR IA para fazer follow up sistematizado em  no máximo 2 dias.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 7: ARTEFATOS PARA EXECUÇÃO (#07090E - Preto Profundo)
+         Contêineres padronizados e separados por responsabilidade
+         ===================================================== -->
+    <section id="artefatos" class="w-full bg-[#07090E] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <!-- Cabeçalho -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    Artefatos para execução:
+                </h2>
+                <div class="w-20 h-1 bg-medTertiary rounded-full mx-auto mt-4"></div>
+            </div>
+
+            <div class="space-y-16">
+                <!-- =================================================
+                     GRUPO 1: RESPONSABILIDADE PRINCIPAL V4
+                     ================================================= -->
+                <div>
+                    <div class="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+                        <div class="w-11 h-11 rounded-xl bg-medPrimary border border-medTertiary/40 flex items-center justify-center text-medTertiary text-lg shrink-0">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                            Responsabilidade principal V4
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Card: Criativos para anúncio -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">V4 Company</span>
+                                    <i class="fa-solid fa-rectangle-ad text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    Criativos para anúncio
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        src="https://placehold.co/800x450/174078/FFFFFF?text=Imagem+Criativos+para+An%C3%BAncio" 
+                                        alt="[Imagem criativos para anuncio]" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'Criativos para anúncio')"
+                                    >
+                                </div>
+                            </div>
+                            <a 
+                                href="#url-a-definir" 
+                                onclick="notifyPendingUrl(event, 'Criativos para anúncio')"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Baixar o material</span>
+                            </a>
+                        </div>
+
+                        <!-- Card: Landing Page -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">V4 Company</span>
+                                    <i class="fa-solid fa-laptop-code text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    Landing Page
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        src="https://placehold.co/800x450/174078/FFFFFF?text=Imagem+Landing+Page" 
+                                        alt="[Imagem landing page]" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'Landing Page')"
+                                    >
+                                </div>
+                            </div>
+                            <a 
+                                href="#url-a-definir" 
+                                onclick="notifyPendingUrl(event, 'Landing Page')"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Baixar o material</span>
+                            </a>
+                        </div>
+
+                        <!-- Card: RoadMap -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">V4 Company</span>
+                                    <i class="fa-solid fa-route text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    RoadMap
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        id="roadmap-preview-img"
+                                        src="https://i.imgur.com/WzEf6kb.png" 
+                                        referrerpolicy="no-referrer"
+                                        alt="RoadMap" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'RoadMap')"
+                                        onerror="handleImgurFallback(this, 'WzEf6kb', 'RoadMap')"
+                                    >
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onclick="openImageLightbox(document.getElementById('roadmap-preview-img').src, 'RoadMap')"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                <span>Ampliar imagem</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================================================
+                     GRUPO 2: RESPONSABILIDADE PRINCIPAL MEDCENTER
+                     ================================================= -->
+                <div>
+                    <div class="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+                        <div class="w-11 h-11 rounded-xl bg-medPrimary border border-medTertiary/40 flex items-center justify-center text-medTertiary text-lg shrink-0">
+                            <i class="fa-solid fa-hospital-user"></i>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                            Responsabilidade principal MedCenter
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Card: Diagnóstico da operação de venda -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">MedCenter</span>
+                                    <i class="fa-solid fa-file-lines text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    Diagnóstico da operação de venda
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        src="https://i.imgur.com/GRwHE5p.png" 
+                                        referrerpolicy="no-referrer"
+                                        alt="Diagnóstico da operação de venda" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'Diagnóstico da operação de venda')"
+                                        onerror="handleImgurFallback(this, 'GRwHE5p', 'Diagn%C3%B3stico+da+Opera%C3%A7%C3%A3o+de+Venda')"
+                                    >
+                                </div>
+                            </div>
+                            <a 
+                                href="https://drive.google.com/file/d/1PiiSx9BV7dPpPcvsvMH2fwsQmnrD6wb0/view" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Baixar o material</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================================================
+                     GRUPO 3: RESPONSABILIDADE COMPARTILHADA
+                     ================================================= -->
+                <div>
+                    <div class="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+                        <div class="w-11 h-11 rounded-xl bg-medPrimary border border-medTertiary/40 flex items-center justify-center text-medTertiary text-lg shrink-0">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                            Responsabilidade compartilhada
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Card: Plano de mídia e comunicação -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">V4 &amp; MedCenter</span>
+                                    <i class="fa-solid fa-bullhorn text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    Plano de mídia e comunicação
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        src="https://i.imgur.com/ssTcXle.png" 
+                                        referrerpolicy="no-referrer"
+                                        alt="Plano de mídia e comunicação" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'Plano de mídia e comunicação')"
+                                        onerror="handleImgurFallback(this, 'ssTcXle', 'Plano+de+M%C3%ADdia+e+Comunica%C3%A7%C3%A3o')"
+                                    >
+                                </div>
+                            </div>
+                            <a 
+                                href="https://drive.google.com/file/d/12rWOaPF2SmHfMeL8iWhznffxKNKEw8J3/view" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Baixar o material</span>
+                            </a>
+                        </div>
+
+                        <!-- Card: Manual de Identidade Visual -->
+                        <div class="bg-neutral-900 border border-white/10 hover:border-medTertiary/50 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 h-full">
+                            <div>
+                                <div class="flex items-center justify-between h-6 mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-medTertiary">V4 &amp; MedCenter</span>
+                                    <i class="fa-solid fa-palette text-medTertiary"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-white leading-snug h-14 flex items-center mb-4">
+                                    Manual de Identidade Visual
+                                </h4>
+                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-[#101929] border border-white/10 mb-6 relative group flex items-center justify-center">
+                                    <img 
+                                        src="https://placehold.co/800x450/174078/FFFFFF?text=Imagem+Identidade+Visual" 
+                                        alt="[Imagem identidade visual]" 
+                                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 cursor-zoom-in"
+                                        onclick="openImageLightbox(this.src, 'Manual de Identidade Visual')"
+                                    >
+                                </div>
+                            </div>
+                            <a 
+                                href="#url-a-definir" 
+                                onclick="notifyPendingUrl(event, 'Manual de Identidade Visual')"
+                                class="w-full h-12 inline-flex items-center justify-center gap-2.5 px-5 rounded-xl bg-medPrimary hover:bg-medTertiary text-white hover:text-medPrimary font-bold text-sm border border-medTertiary/30 transition-all duration-300"
+                            >
+                                <i class="fa-solid fa-download"></i>
+                                <span>Baixar o material</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 8: FORECAST / PROJEÇÃO (#174078 - Azul Primário MedCenter)
+         ===================================================== -->
+    <section id="forecast" class="w-full bg-[#174078] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/15">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                    FORECAST / PROJEÇÃO
+                </h2>
+            </div>
+
+            <!-- Imagem do Forecast respeitando texto acima e botão abaixo -->
+            <div class="bg-[#0B1D38] border-2 border-medTertiary/40 rounded-3xl p-4 sm:p-8 shadow-2xl mb-10">
+                <div class="flex justify-end mb-3">
+                    <span class="text-xs text-medTertiary flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-expand"></i> Clique na projeção para expandir
+                    </span>
+                </div>
+                <div class="rounded-2xl overflow-hidden bg-black/40 border border-white/10">
+                    <img 
+                        src="https://i.imgur.com/hSWMVk9.png" 
+                        referrerpolicy="no-referrer"
+                        alt="FORECAST / PROJEÇÃO" 
+                        class="w-full h-auto object-contain mx-auto cursor-zoom-in hover:opacity-95 transition-opacity"
+                        onclick="openImageLightbox(this.src, 'FORECAST / PROJEÇÃO')"
+                        onerror="handleImgurFallback(this, 'hSWMVk9', 'FORECAST+%2F+PROJE%C3%87%C3%83O')"
+                    >
+                </div>
+            </div>
+
+            <!-- Botão da Planilha de Forecast -->
+            <div class="text-center">
+                <a 
+                    href="https://docs.google.com/spreadsheets/d/1clU_12YCM0bEv4ySgChIrAoKNuprYJmZ7WgdBOxJdus/edit?gid=1#gid=1" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 rounded-xl bg-white hover:bg-medTertiary text-medPrimary font-extrabold text-base sm:text-lg shadow-2xl transition-all duration-300"
+                >
+                    <i class="fa-solid fa-table"></i>
+                    <span>Clique para acessar o material</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 9: CALENDÁRIO ESTRATÉGICO PARA OS PRÓXIMOS 6 MESES (#11151E - Cinza Escuro)
+         Gráfico de Gantt Interativo Integral
+         ===================================================== -->
+    <section id="calendario" class="w-full bg-[#11151E] py-20 sm:py-28 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-[1440px] mx-auto reveal-item">
+            <div class="text-center max-w-4xl mx-auto mb-10">
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    Calendário Estratégico para os próximos 6 meses
+                </h2>
+                <p class="text-neutral-400 text-sm sm:text-base mt-3 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-hand-pointer text-medTertiary"></i>
+                    <span>Clique em qualquer barra azul do gráfico abaixo para abrir o detalhamento completo da ação.</span>
+                </p>
+            </div>
+
+            <!-- Contêiner do Gráfico de Gantt Interativo -->
+            <div class="gantt-wrapper-outer">
+                <div class="gantt-container-box">
+                    <div class="gantt-chart">
+                        <div class="gantt-header topic">Ação / Tópico</div>
+                        <div class="gantt-header">Dezembro<br><small>2026</small></div>
+                        <div class="gantt-header">Janeiro<br><small>2027</small></div>
+                        <div class="gantt-header">Fevereiro<br><small>2027</small></div>
+                        <div class="gantt-header">Março<br><small>2027</small></div>
+                        <div class="gantt-header">Abril<br><small>2027</small></div>
+                        <div class="gantt-header">Maio<br><small>2027</small></div>
+
+                        <!-- Mês 1: Dezembro 2026 -->
+                        <div class="gantt-cell topic-cell">Rastreamento de anúncios</div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Rastreamento de anúncios', 'Instala o rastreio do anúncio, porque hoje a MedCenter mede conversa e ligação, mas não sabe qual campanha traz paciente. A execução será feita através de GTM, GA4 e Pixel com API de Conversões após consentimento, evento clique_whatsapp, UTM padrão, código de origem na mensagem pronta e CPF pedido no agendamento. Verificação: checklist antes de subir a mídia completo e nenhum nome de exame no DebugView.', 'Dezembro 2026')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <div class="gantt-cell topic-cell">Nova configuração do CRM</div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Nova configuração do CRM', 'Equipe de atendimento da MedCenter, configura em dezembro o kanban de sete fases no Omni Smart, porque quem some depois do orçamento se perde sem recontato. A execução será feita através de etiquetas por exame, campos de CPF e origem ligados, motivo de perda obrigatório e automações de boas-vindas, recontato 12 e 23 horas após a última mensagem e confirmação de agendamento.', 'Dezembro 2026')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <div class="gantt-cell topic-cell">Ativar as novas campanhas de tráfego</div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Ativar as novas campanhas de tráfego', 'Combo Performance, em dezembro, lança as jornadas do plano de mídia só depois do checklist de rastreio aprovado, substituindo anúncios que levam o Google para a home. A execução será feita através dos criativos C01 a C04, campanhas de marca e por exame com âncoras na página da rede, remarketing no Meta, pausa dos conjuntos em fadiga de Granja e Martinópole e verba centralizada na Matriz.', 'Dezembro 2026')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <!-- Mês 2: Janeiro 2027 -->
+                        <div class="gantt-cell topic-cell">Automação STG-Omni</div>
+                        <div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Automação STG-Omni', 'Implementação e Gestão de Dados, a contratar, em janeiro liga o STG ao Omni Smart, porque a fase Venda do kanban depende do exame realizado e pago registrado no ERP. A execução será feita através da exportação do STG cruzada por CPF com os cards, movendo automaticamente o card para Venda; integração por API só se o ganho medido compensar o custo se não vamos triangular base de dados via planilha ao invés de integração direta STG - Omni', 'Janeiro 2027')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <div class="gantt-cell topic-cell">Painel de dados</div>
+                        <div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Painel de dados', 'Implementação e Gestão de Dados, a contratar, em janeiro troca a planilha manual de cruzamento por um painel único, porque mídia, Omni Smart e STG mostram números separados. A execução será feita através da conexão das contas de anúncio, das fases do kanban e dos exames realizados por CPF, com visão por canal, exame, unidade e funil reverso da meta semanal, respeitando as regras de dado de saúde.', 'Janeiro 2027')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <!-- Mês 3: Fevereiro 2027 -->
+                        <div class="gantt-cell topic-cell">Leitura do funil</div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Leitura do funil', 'Coordenação do atendimento, em fevereiro, faz a primeira leitura do funil com dados reais do painel, substituindo as estimativas usadas no diagnóstico. A execução será feita através do painel diário às 9h, alinhamento de dez minutos com o call center, funil reverso por exame, taxas de agendamento, confirmação e recuperação do recontato e motivos de perda na reunião de segunda.', 'Fevereiro 2027')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <!-- Mês 4: Março 2027 -->
+                        <div class="gantt-cell topic-cell">
+                            <span>Ativar réguas de comunicação</span>
+                            <span class="badge-contratar"><i class="fa-solid fa-file-signature"></i> A Contratar</span>
+                        </div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Ativar réguas de comunicação', 'A Contratar — Testar as réguas de comunicação de exames de rotina e bônus Odonto Care numa amostra da base, porque pacientes não recebem lembrete nem oferta de odontologia. A execução será feita através da exportação do STG, gatilhos de 330 dias e D+3, mensagens modelo aprovadas, código por régua e opção de sair, limitando uma régua por paciente.', 'Março 2027', true)"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div>
+
+                        <!-- Mês 5: Abril 2027 -->
+                        <div class="gantt-cell topic-cell">
+                            <span>Régua calendário vacinal</span>
+                            <span class="badge-contratar"><i class="fa-solid fa-file-signature"></i> A Contratar</span>
+                        </div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Régua calendário vacinal', 'A Contratar — Ativa a régua do calendário vacinal na abertura da campanha anual da gripe na MedCenter Vacinas, com data a confirmar pela diretoria. A execução será feita através da lista de quem fez exame ou consulta nos últimos 365 dias, exportada do STG, mensagem modelo aprovada oferecendo horário para o paciente e a família, código próprio e opção de sair.', 'Abril 2027', true)"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div>
+
+                        <div class="gantt-cell topic-cell">
+                            <span>Escalar réguas aprovadas</span>
+                            <span class="badge-contratar"><i class="fa-solid fa-file-signature"></i> A Contratar</span>
+                        </div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Escalar réguas aprovadas', 'A Contratar — Abre para toda a base elegível as réguas do piloto que cumpriram o critério de custo por atendimento realizado, ocupando agenda de odontologia e exames sem depender de mais mídia. A execução será feita através da exportação mensal do STG, segmentação por exame, idade e unidade, ajuste dos textos com pior resposta e limite de uma régua ativa por paciente. Verificação: resultado por régua no painel.', 'Abril 2027', true)"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                        <div class="gantt-cell"></div>
+
+                        <!-- Mês 6: Maio 2027 -->
+                        <div class="gantt-cell topic-cell">Expansão condicionada</div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Expansão condicionada', 'Aumenta verba apenas nas campanhas cujo custo por exame realizado ficou dentro da meta validada na leitura do funil. A execução será feita através de aumento gradual nas campanhas aprovadas, novas peças por unidade com cidade e serviços locais e checagem da capacidade do call center e do ritmo do funil reverso antes de cada aumento.', 'Maio 2027')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+
+                        <div class="gantt-cell topic-cell">Replanejamento do semestre</div>
+                        <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+                        <div class="gantt-cell"><div class="gantt-bar" onclick="openModal('Replanejamento do semestre', 'V4 e diretoria da MedCenter, em maio, leem os números do semestre e definem o próximo ciclo, no fim da vigência do Combo Performance contratado. A execução será feita através de reunião de estratégia com funil, custo por exame realizado, recuperação do recontato, resultado de cada régua, desempenho das páginas e decisão sobre plataforma e gerente comercial, usando o painel como fonte.', 'Maio 2027')"><i class="fa-solid fa-circle-info"></i><span>Ver</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 10: ACESSO ÀS GRAVAÇÕES E MATERIAIS (#1B2230 - Cinza Médio-Escuro)
+         ===================================================== -->
+    <section id="acervo" class="w-full bg-[#1B2230] py-20 px-4 sm:px-8 lg:px-14 border-t border-white/10">
+        <div class="w-full max-w-5xl mx-auto reveal-item">
+            <div class="bg-gradient-to-r from-[#0E1624] via-[#174078] to-[#0E1624] border border-medTertiary/40 rounded-3xl p-8 sm:p-12 text-center shadow-2xl">
+                <div class="w-16 h-16 rounded-2xl bg-medTertiary/20 border border-medTertiary/40 text-medTertiary flex items-center justify-center text-3xl mx-auto mb-6">
+                    <i class="fa-brands fa-google-drive"></i>
+                </div>
+                <h2 class="text-xl sm:text-3xl font-extrabold text-white max-w-3xl mx-auto leading-snug mb-8">
+                    Acesse aqui as gravações, apresentações e materiais gráficos desta consultoria:
+                </h2>
+                <a 
+                    href="https://drive.google.com/drive/folders/1nhRQE7RzpXmNK4tTcgWGeX6DRktUJHxd" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 rounded-xl bg-medTertiary hover:bg-white text-medPrimary font-black text-base sm:text-lg shadow-xl transition-all duration-300"
+                >
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>Clique para acessar</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SESSÃO 11: ENCERRAMENTO / AGRADECIMENTO (#070A10 - Preto Neutro)
+         ===================================================== -->
+    <section class="w-full bg-[#070A10] py-24 sm:py-32 px-4 sm:px-8 text-center border-t border-white/10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(23,64,120,0.35)_0%,transparent_70%)] pointer-events-none"></div>
+        <div class="relative z-10 max-w-4xl mx-auto reveal-item">
+            <div class="w-16 h-1 bg-medTertiary rounded-full mx-auto mb-8"></div>
+            <h2 class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight uppercase">
+                OBRIGADO POR<br>
+                <span class="text-medTertiary">ABRIR AS PORTAS PARA A V4 COMPANY</span>
+            </h2>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         RODAPÉ VERMELHO (#E50914) COM ASSINATURA V4 COMPANY
+         ===================================================== -->
+    <footer class="w-full bg-[#E50914] py-8 px-4 sm:px-8 shadow-inner">
+        <div class="w-full max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
+            <span class="text-white font-bold text-base sm:text-lg tracking-wide">
+                Produzido por:
+            </span>
+            <img 
+                src="https://i.imgur.com/SU08Zb0.png" 
+                referrerpolicy="no-referrer"
+                alt="V4 Silva Anchieta & Co" 
+                class="h-9 sm:h-11 w-auto object-contain"
+                onerror="handleImgurFallback(this, 'SU08Zb0', 'V4+Silva+Anchieta+%26+Co')"
+            >
+        </div>
+    </footer>
+
+    <!-- =====================================================
+         MODAL INTERATIVO DO GRÁFICO DE GANTT
+         ===================================================== -->
+    <div class="modal-overlay" id="actionModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="forceCloseModal()">&times;</span>
+            <div id="modalBadgeWrapper" style="display: none; margin-bottom: 10px;">
+                <span class="badge-contratar" style="font-size: 0.75rem; padding: 4px 12px;">
+                    <i class="fa-solid fa-file-signature"></i> Escopo A Contratar
+                </span>
+            </div>
+            <h2 class="modal-title" id="modalTitle">Título da Ação</h2>
+            <div id="modalContratarNotice" class="modal-contratar-banner" style="display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>A Contratar: Esta ação requer contratação específica para execução e operação.</span>
+            </div>
+            <div class="modal-desc" id="modalDesc">Descrição da ação...</div>
+            <div class="modal-meta" id="modalMeta">Período: </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         LIGHTBOX MODAL PARA AMPLIAR IMAGENS E INFOGRÁFICOS
+         ===================================================== -->
+    <div id="imageLightbox" class="fixed inset-0 z-[1100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-8" onclick="closeImageLightbox()">
+        <div class="relative max-w-6xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="w-full flex items-center justify-between mb-3 px-2">
+                <h4 id="lightboxCaption" class="text-white font-bold text-base sm:text-lg"></h4>
+                <button onclick="closeImageLightbox()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center text-xl transition-colors">
+                    &times;
+                </button>
+            </div>
+            <img id="lightboxImg" src="" alt="Visualização ampliada" referrerpolicy="no-referrer" class="max-h-[82vh] w-auto object-contain rounded-xl border border-white/15 shadow-2xl">
+        </div>
+    </div>
+
+    <!-- =====================================================
+         CAIXA DE MENSAGEM NÃO BLOQUEANTE (PARA LINKS A DEFINIR)
+         ===================================================== -->
+    <div id="customToast" class="fixed bottom-6 right-6 z-[1200] hidden max-w-sm bg-neutral-900 border-l-4 border-medTertiary text-white px-5 py-4 rounded-xl shadow-2xl items-start gap-3">
+        <i class="fa-solid fa-circle-info text-medTertiary text-lg mt-0.5"></i>
+        <div class="text-sm">
+            <p id="toastTitle" class="font-bold text-white">URL a definir</p>
+            <p id="toastMessage" class="text-neutral-300 text-xs mt-0.5">O link para download deste material será inserido em breve.</p>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         SCRIPTS (ANIMAÇÃO DO HERO, GANTT MODAL, FALLBACKS E SCROLL)
+         ===================================================== -->
+    <script>
+        /* =========================================
+           1. TRATAMENTO RESILIENTE DE IMAGENS IMGUR
+           ========================================= */
+        function handleImgurFallback(imgElement, imgurId, placeholderLabel) {
+            if (!imgElement.dataset.triedJpg) {
+                imgElement.dataset.triedJpg = 'true';
+                imgElement.src = 'https://i.imgur.com/' + imgurId + '.jpg';
+            } else if (!imgElement.dataset.triedJpeg) {
+                imgElement.dataset.triedJpeg = 'true';
+                imgElement.src = 'https://i.imgur.com/' + imgurId + '.jpeg';
+            } else {
+                imgElement.onerror = null;
+                imgElement.src = 'https://placehold.co/900x500/174078/FFFFFF?text=' + placeholderLabel;
+            }
+        }
+
+        /* =========================================
+           2. CONFIGURAÇÃO E ANIMAÇÃO DO HERO CANVAS
+           ========================================= */
+        const coresDasBolinhas = ['#FFFFFF'];
+        const corDasLinhas = '#FFFFFF';
+
+        const heroSection = document.getElementById('hero-section');
+        const canvas = document.getElementById('hero-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resizeHeroCanvas() {
+            width = canvas.width = heroSection.clientWidth || window.innerWidth;
+            height = canvas.height = heroSection.clientHeight || window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.size = Math.random() * 3 + 1;
+                this.color = coresDasBolinhas[Math.floor(Math.random() * coresDasBolinhas.length)];
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.alpha;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = width > 768 ? 150 : 60;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateHeroParticles() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+
+                for (let j = index + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = corDasLinhas;
+                        ctx.globalAlpha = 1 - (distance / 150);
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            requestAnimationFrame(animateHeroParticles);
+        }
+
+        /* =========================================
+           3. LÓGICA DO MODAL DO GRÁFICO DE GANTT
+           ========================================= */
+        const modal = document.getElementById('actionModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalMeta = document.getElementById('modalMeta');
+        const modalBadgeWrapper = document.getElementById('modalBadgeWrapper');
+        const modalContratarNotice = document.getElementById('modalContratarNotice');
+
+        function openModal(title, description, period, isContratar = false) {
+            modalTitle.textContent = title;
+            modalDesc.textContent = description;
+            modalMeta.innerHTML = '<i class="fa-regular fa-calendar-check"></i> Período estimado: ' + period;
+
+            if (isContratar) {
+                modalBadgeWrapper.style.display = 'block';
+                modalContratarNotice.style.display = 'flex';
+            } else {
+                modalBadgeWrapper.style.display = 'none';
+                modalContratarNotice.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event.target === modal) {
+                forceCloseModal();
+            }
+        }
+
+        function forceCloseModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        /* =========================================
+           4. LIGHTBOX DE IMAGENS E AVISO DE URL A DEFINIR
+           ========================================= */
+        const imageLightbox = document.getElementById('imageLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxCaption = document.getElementById('lightboxCaption');
+
+        function openImageLightbox(src, caption) {
+            lightboxImg.src = src;
+            lightboxCaption.textContent = caption || '';
+            imageLightbox.classList.remove('hidden');
+            imageLightbox.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageLightbox() {
+            imageLightbox.classList.add('hidden');
+            imageLightbox.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        let toastTimer = null;
+        function notifyPendingUrl(event, artifactName) {
+            event.preventDefault();
+            const toast = document.getElementById('customToast');
+            document.getElementById('toastTitle').textContent = artifactName + ' (URL a definir)';
+            document.getElementById('toastMessage').textContent = 'Substitua "#url-a-definir" no código pelo link final quando disponível.';
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 4000);
+        }
+
+        /* =========================================
+           5. INICIALIZAÇÃO SEGURA NO WINDOW.ONLOAD
+           ========================================= */
+        window.onload = function () {
+            resizeHeroCanvas();
+            initParticles();
+            animateHeroParticles();
+
+            // Revelação suave das seções durante a rolagem
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.08 });
+
+            document.querySelectorAll('.reveal-item').forEach((el) => observer.observe(el));
+        };
+
+        window.addEventListener('resize', () => {
+            resizeHeroCanvas();
+            initParticles();
+        });
+
+        // Barra de progresso de leitura no topo fixo
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('scroll-progress').style.width = progress + '%';
+        });
+
+        // Tecla ESC fecha qualquer modal aberto
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                forceCloseModal();
+                closeImageLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
